@@ -1,19 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
- 
+pragma experimental ABIEncoderV2;
+
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-import "./IDAOVault.sol";
+import "./IMemberCard.sol";
 
-//we can use the ERC token to itnerface with this contract
-contract MemberCard is ERC721, ERC2981, AccessControlEnumerable {
+contract MemberCard is IMemberCard, ERC721, ERC2981, AccessControlEnumerable {
     using Counters for Counters.Counter;
-    using Strings for uint256;
-
-    IDAOVault daoVault;
 
     string baseURI;
     string public baseExtension = ".json";
@@ -33,11 +30,14 @@ contract MemberCard is ERC721, ERC2981, AccessControlEnumerable {
     Counters.Counter private _tokenIdCounter;
     Counters.Counter private _tokenSentToBurn;
 
-    bytes32 public constant MINTER =
-        keccak256("MINTER");
+    bytes32 public constant CORE =
+        keccak256("CORE");
 
     bytes32 public constant OWNER =
         keccak256("OWNER");
+
+    bytes32 public constant MINTER =
+        keccak256("MINTER");
 
     address nonTransferAddress;
 
@@ -51,20 +51,17 @@ contract MemberCard is ERC721, ERC2981, AccessControlEnumerable {
     string memory _initBaseURI,
     address _ownerAddress, //this is where permission token is made 
     address _marketPlace,
-    address _daoProxy,
     uint96 _royaltyFee,
     uint _maxSupply
 
     ) ERC721(_name,  _symbol) {
-        _grantRole(MINTER, msg.sender);
+        _grantRole(CORE, msg.sender);
         _grantRole(OWNER, _ownerAddress);
         maxSupply = _maxSupply; 
         s_royaltyFee = _royaltyFee;
 
         setBaseURI(_initBaseURI);
         setApprovalForAll(_marketPlace, true);
-
-        daoVault = IDAOVault(_daoProxy);
 
         s_mintRoylatyTo = _ownerAddress;
     }
@@ -77,7 +74,15 @@ contract MemberCard is ERC721, ERC2981, AccessControlEnumerable {
           s_birthRate = _birthRate;
     }
 
-    function burnCard(uint256 _tokenId, address _tokenHolder) public onlyRole(MINTER)
+    function setNonTransferableAddr(address _address) external onlyRole(MINTER) override(IMemberCard) {
+          nonTransferAddress = _address;
+    }
+
+    function setMinterAddr(address _address) external onlyRole(CORE) override(IMemberCard){
+           _grantRole(MINTER, _address);
+    }
+
+    function burnCard(uint256 _tokenId, address _tokenHolder) external onlyRole(MINTER) override(IMemberCard)
     {
         require(ownerOf(_tokenId) == _tokenHolder, "not owner");
         require(_tokenHolder != nonTransferAddress, "cannot transfer");
@@ -94,7 +99,7 @@ contract MemberCard is ERC721, ERC2981, AccessControlEnumerable {
         return supply;
     }
 
-    function mint(address _to) public onlyRole(MINTER) payable returns(uint256) {
+    function mint(address _to) external onlyRole(MINTER) override(IMemberCard) returns(uint256) {
         //might need another min stake level require level 
         uint256 currentSupply = getTotalSupply();
 
@@ -117,7 +122,7 @@ contract MemberCard is ERC721, ERC2981, AccessControlEnumerable {
         return tokenId;
     }
 
-    function calculateWeight(uint256 _tokenId) public view returns (uint256) {
+    function calculateWeight(uint256 _tokenId) external view override(IMemberCard) returns (uint256) {
         uint256 weightedPoints;
         uint256 timePassed = 120; //2months //2628000; //1 month //make this custom  - this is like duration with staking rewards 
         uint256 stakeTime = block.timestamp - cardAtrributes[_tokenId].birthtime;
@@ -151,7 +156,7 @@ contract MemberCard is ERC721, ERC2981, AccessControlEnumerable {
         internal
         override
     {
-        nonTransferAddress = daoVault.getProposeAddress();
+ 
         require(from != nonTransferAddress, "cannot transfer");
         super._beforeTokenTransfer(from, to, tokenId);
     }

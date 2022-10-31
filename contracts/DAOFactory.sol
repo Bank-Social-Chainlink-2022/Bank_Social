@@ -10,11 +10,11 @@ contract DAOFactory {
 
     function createDAO(
 
-        address _adminContract,
-        address _daoVault
+        address _daoVault,
+        address  _memberCardInterface
 
     ) external returns (DAO) {
-        DAO daoAddress = new DAO(  _adminContract,  _daoVault);
+        DAO daoAddress = new DAO( _daoVault, _memberCardInterface);
 
         daos[DAOCounter] = daoAddress;
         DAOCounter++;

@@ -14,10 +14,11 @@ contract DAOVaultFactory {
         address _aTokenAddress,
         address _aaveLendingPoolAddressesProvider,
         address _swapperInterface,
+        address _memberCardInterface,
         uint256 _minStake
 
     ) external returns (DAOVault) {
-        DAOVault vaultAddress = new DAOVault( _tokenAddress, _aTokenAddress, _aaveLendingPoolAddressesProvider, _swapperInterface, _minStake);
+        DAOVault vaultAddress = new DAOVault( _tokenAddress, _aTokenAddress, _aaveLendingPoolAddressesProvider, _swapperInterface, _memberCardInterface, _minStake);
 
         daoVault[ vaultCounter] = vaultAddress;
         vaultCounter++;

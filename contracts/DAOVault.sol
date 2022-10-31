@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
-
+pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -13,11 +12,15 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "./IAaveLendingPoolAddressesProvider.sol";
 import "./IAaveLendingPool.sol";
 
+import "./IMemberCard.sol";
 import "./IDAOVault.sol";
 import "./ISwap.sol";
 
 contract DAOVault is IDAOVault, AccessControlEnumerable {
     using Counters for Counters.Counter;
+
+    IMemberCard public memberCardInterface;
+    address memberCardAddr;
 
     IAaveLendingPoolAddressesProvider public aaveLendingPoolAddressesProvider;
 
@@ -58,9 +61,13 @@ contract DAOVault is IDAOVault, AccessControlEnumerable {
         address _aTokenAddress,
         address _aaveLendingPoolAddressesProvider,
         address _swapperInterface,
+        address _memberCardInterface,
         uint256 _minStake
 
     ) {
+
+        memberCardInterface = IMemberCard(_memberCardInterface);
+        memberCardAddr = _memberCardInterface;
 
         token = IERC20(_tokenAddress);
         underlyingToken = IERC20(_tokenAddress);
@@ -75,15 +82,17 @@ contract DAOVault is IDAOVault, AccessControlEnumerable {
     }
 
     //AFTER THE DAO IS PUBLISHED SET IT AS ADMIN FOR THIS VAULT AUTOMATICALLY
-    function setDAOAdmin(address _DAO) public onlyRole(CORE) {
+    function setDAOAdmin(address _DAO) external onlyRole(CORE) override(IDAOVault) {
          _grantRole(DAO_CORE, _DAO);
     }
 
     //I Dont Know If This Will Work
-    function stake(address _account, uint256 _amount) public onlyRole(CORE) returns (uint256) {
+    function stake(address _account, uint256 _amount) public returns (uint256) {
         require(token.allowance(_account, address(this)) >= minStake, "Not enough tokens");
+        require(IERC721(memberCardAddr).balanceOf(msg.sender) == 0); //import this into 
 
         uint256 amount = _amount;
+        memberCardInterface.mint(msg.sender); //do we need to grab the ID of this NFT 
 
         token.transferFrom(_account, address(this), _amount);
         _deposit(_amount);
@@ -96,9 +105,13 @@ contract DAOVault is IDAOVault, AccessControlEnumerable {
     }
 
     //Do I Have To Add The Underlying Toke Like In NO Cost?
-    function deposit(address _account, uint256 _amount) public onlyRole(CORE) returns (uint256){
+    function deposit(address _account, uint256 _amount, uint256 _tokenId) public returns (uint256){
+        address tokenOwner = IERC721(memberCardAddr).ownerOf(_tokenId);
         uint256 currentStake = customers[ _account];
+
+        require(IERC721(memberCardAddr).balanceOf(msg.sender) >= 1, "Use doesn't have enough NFTs to create proposal"); 
         require(currentStake>= 0, "no customer");
+        require(tokenOwner == msg.sender);
 
         token.transferFrom(_account, address(this), _amount);
         _deposit(_amount);
@@ -110,13 +123,18 @@ contract DAOVault is IDAOVault, AccessControlEnumerable {
         return _amount;
     }
 
-    function unstake(address _account, uint256 _amount) public onlyRole(CORE) returns (uint256) {
+    //Need To See If The Interface Worked Out In Testing
+    function unstake(address _account, uint256 _amount, uint256 _tokenId) public returns (uint256) {
         uint256 currentStake = customers[_account];
         uint256 requiredAmount = currentStake - minStake;
 
         require(currentStake >= 0, "no customer");
         require(currentStake >= minStake); //permissioned balance cannot withdraw more
         require(_amount <= requiredAmount, "not enough in the account");
+
+        address tokenOwner = IERC721(memberCardAddr).ownerOf(_tokenId);
+        require(IERC721(memberCardAddr).balanceOf(msg.sender) >= 1, "Use doesn't have enough NFTs to create proposal"); 
+        require(tokenOwner == msg.sender);
 
         IAaveLendingPool lendingPool = aaveLendingPoolAddressesProvider.getLendingPool();
         lendingPool.withdraw(address(underlyingToken), _amount, _account);
@@ -128,10 +146,15 @@ contract DAOVault is IDAOVault, AccessControlEnumerable {
         return _amount;
     }
 
-    function unstakeFull(address _account) public onlyRole(CORE) returns (uint256) {
+    function unstakeFull(address _account, uint256 _tokenId) public returns (uint256) {
         uint256 currentStake = customers[_account];
         require(currentStake >= 0, "no customer");
 
+        address tokenOwner = IERC721(memberCardAddr).ownerOf(_tokenId);
+        require(IERC721(memberCardAddr).balanceOf(msg.sender) >= 1, "Use doesn't have enough NFTs to create proposal"); 
+        require(tokenOwner == msg.sender);
+
+        memberCardInterface.burnCard(_tokenId, msg.sender);
 
         IAaveLendingPool lendingPool = aaveLendingPoolAddressesProvider.getLendingPool();
         lendingPool.withdraw(address(underlyingToken), currentStake, _account);
@@ -142,7 +165,6 @@ contract DAOVault is IDAOVault, AccessControlEnumerable {
         totalStake -= currentStake;
 
         emit UnStaked(_account, totalStake, currentStake);
-
 
         return currentStake;
     }

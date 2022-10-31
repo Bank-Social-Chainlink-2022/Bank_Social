@@ -15,12 +15,11 @@ contract MemberCardFactory {
         string memory _initBaseURI,
         address _ownerAddress,
         address _marketPlace,
-        address _daoProxy,
         uint96 _royaltyFee,
         uint _maxSupply
 
     ) external returns (MemberCard) {
-        MemberCard cardsAddress = new MemberCard( _name,  _symbol, _initBaseURI, _ownerAddress, _marketPlace, _daoProxy, _royaltyFee, _maxSupply);
+        MemberCard cardsAddress = new MemberCard( _name,  _symbol, _initBaseURI, _ownerAddress, _marketPlace, _royaltyFee, _maxSupply);
 
         memberCards[memberCardsCounter] = cardsAddress;
         memberCardsCounter++;

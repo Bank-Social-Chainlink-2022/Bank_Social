@@ -1,80 +1,55 @@
-//SPDX-License-Identifier: MIT
-pragma solidity >=0.7.6;
+// SPDX-License-Identifier: GPL-2.0-or-later
+pragma solidity =0.7.6;
 pragma abicoder v2;
 
-import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
-import "ISwap.sol";
+contract SwapExamples {
+    // For the scope of these swap examples,
+    // we will detail the design considerations when using
+    // `exactInput`, `exactInputSingle`, `exactOutput`, and  `exactOutputSingle`.
 
-contract Swap is ISwap, Ownable {
-    bool _pauseContract = false;
+    // It should be noted that for the sake of these examples, we purposefully pass in the swap router instead of inherit the swap router for simplicity.
+    // More advanced example contracts will detail how to inherit the swap router safely.
 
-    // Uniswap router instance
-    ISwapRouter public constant swapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+    ISwapRouter public immutable swapRouter;
 
-    address internal IssuerContract;
+    // This example swaps DAI/WETH9 for single path swaps and DAI/USDC/WETH9 for multi path swaps.
 
-    //the goal is to stake in matic and native and earn stable 
-    //stake in stable and earn non stable
+    address public constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address public constant WETH9 = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address public constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
 
-    address USDT_POLYGON_CROSSCHAIN = 0xc2132D05D31c914a87C6611C10748AEb04B58e8F;
-    address USDC_POLYGON_CROSSCHAIN = 0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;
-    address DAI_POLYGON = 0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063;
+    // For this example, we will set the pool fee to 0.3%.
+    uint24 public constant poolFee = 3000;
 
-    address WMATIC_POLYGON = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
-    address FIL_POLYGON = 0xEde1B77C0Ccc45BFa949636757cd2cA7eF30137F;
-    address WETH_POLYGON = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
-
-    //only a specific contract can make swaps 
-    modifier onlyIssuerContract() {
-        require(
-            msg.sender == IssuerContract,
-            "Invalid operation. Not Issuer"
-        );
-        _;
+    constructor(ISwapRouter _swapRouter) {
+        swapRouter = _swapRouter;
     }
 
-    modifier notPaused() {
-        require(!_pauseContract, "Contract is paused");
-        _;
-    }
+    /// @notice swapExactInputSingle swaps a fixed amount of DAI for a maximum possible amount of WETH9
+    /// using the DAI/WETH9 0.3% pool by calling `exactInputSingle` in the swap router.
+    /// @dev The calling address must approve this contract to spend at least `amountIn` worth of its DAI for this function to succeed.
+    /// @param amountIn The exact amount of DAI that will be swapped for WETH9.
+    /// @return amountOut The amount of WETH9 received.
+    function swapExactInputSingle(uint256 amountIn) external returns (uint256 amountOut) {
+        // msg.sender must approve this contract
 
-    //the contract that gets inputed 
-    //constructor(address _issuerContract) {
-        //IssuerContract = _issuerContract;
-    //}
+        // Transfer the specified amount of DAI to this contract.
+        TransferHelper.safeTransferFrom(DAI, msg.sender, address(this), amountIn);
 
-    //onlyIssuerContract
-    function swapExactInputSingle(
-        address fromAsset,
-        address toAsset,
-        address sender,
-        address recipient,
-        uint24 poolFee,
-        uint256 amountIn
-    ) external override(ISwap) returns (uint amountOut) {
-        // Transfer the specified amount of fromAsset to this contract
-        TransferHelper.safeTransferFrom(
-            fromAsset,
-            sender,
-            address(this),
-            amountIn
-        );
-
-        // Approve the router to spend fromAsset
-        TransferHelper.safeApprove(fromAsset, address(swapRouter), amountIn);
+        // Approve the router to spend DAI.
+        TransferHelper.safeApprove(DAI, address(swapRouter), amountIn);
 
         // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
-        // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount. This can be  used to set the limit for the price the swap will push the pool to,
-        // which can help protect against price impact or for setting up logic in a variety of price-relevant mechanisms
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
-            .ExactInputSingleParams({
-                tokenIn: fromAsset,
-                tokenOut: toAsset,
+        // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
+        ISwapRouter.ExactInputSingleParams memory params =
+            ISwapRouter.ExactInputSingleParams({
+                tokenIn: DAI,
+                tokenOut: WETH9,
                 fee: poolFee,
-                recipient: recipient,
+                recipient: msg.sender,
                 deadline: block.timestamp,
                 amountIn: amountIn,
                 amountOutMinimum: 0,
@@ -85,32 +60,40 @@ contract Swap is ISwap, Ownable {
         amountOut = swapRouter.exactInputSingle(params);
     }
 
-    //Check To See If The Token Is Selectable
-    function isValidAssetAddress(address _assetAddress)
-        external
-        view
-        override(ISwap)
-        returns (bool)
-    {
-        if (
-            _assetAddress == USDT_POLYGON_CROSSCHAIN ||
-            _assetAddress == USDC_POLYGON_CROSSCHAIN ||
-            _assetAddress == DAI_POLYGON ||
-            _assetAddress == WMATIC_POLYGON ||
-            _assetAddress == FIL_POLYGON ||
-            _assetAddress == WETH_POLYGON
-        ) {
-            return true;
+    /// @notice swapExactOutputSingle swaps a minimum possible amount of DAI for a fixed amount of WETH.
+    /// @dev The calling address must approve this contract to spend its DAI for this function to succeed. As the amount of input DAI is variable,
+    /// the calling address will need to approve for a slightly higher amount, anticipating some variance.
+    /// @param amountOut The exact amount of WETH9 to receive from the swap.
+    /// @param amountInMaximum The amount of DAI we are willing to spend to receive the specified amount of WETH9.
+    /// @return amountIn The amount of DAI actually spent in the swap.
+    function swapExactOutputSingle(uint256 amountOut, uint256 amountInMaximum) external returns (uint256 amountIn) {
+        // Transfer the specified amount of DAI to this contract.
+        TransferHelper.safeTransferFrom(DAI, msg.sender, address(this), amountInMaximum);
+
+        // Approve the router to spend the specifed `amountInMaximum` of DAI.
+        // In production, you should choose the maximum amount to spend based on oracles or other data sources to acheive a better swap.
+        TransferHelper.safeApprove(DAI, address(swapRouter), amountInMaximum);
+
+        ISwapRouter.ExactOutputSingleParams memory params =
+            ISwapRouter.ExactOutputSingleParams({
+                tokenIn: DAI,
+                tokenOut: WETH9,
+                fee: poolFee,
+                recipient: msg.sender,
+                deadline: block.timestamp,
+                amountOut: amountOut,
+                amountInMaximum: amountInMaximum,
+                sqrtPriceLimitX96: 0
+            });
+
+        // Executes the swap returning the amountIn needed to spend to receive the desired amountOut.
+        amountIn = swapRouter.exactOutputSingle(params);
+
+        // For exact output swaps, the amountInMaximum may not have all been spent.
+        // If the actual amount spent (amountIn) is less than the specified maximum amount, we must refund the msg.sender and approve the swapRouter to spend 0.
+        if (amountIn < amountInMaximum) {
+            TransferHelper.safeApprove(DAI, address(swapRouter), 0);
+            TransferHelper.safeTransfer(DAI, msg.sender, amountInMaximum - amountIn);
         }
-        return false;
-    }
-
-    function setIssuerContract(address _issuerContract) external onlyOwner {
-        require(IssuerContract != address(0), "Invalid address");
-        IssuerContract = _issuerContract;
-    }
-
-    function pauseContract(bool status) external onlyOwner {
-        _pauseContract = status;
     }
 }

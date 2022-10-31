@@ -3,19 +3,23 @@
 pragma solidity ^0.8.10;
 
 import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
-import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
+import "./IMemberCard.sol";
 import "./IDAOVault.sol";
 
 error Election__NoCandidates();
 error Payment__Failure();
 
 //make the proposers ID non transferable for the duration of the stake
-contract DAO is AccessControlEnumerable, KeeperCompatibleInterface  {
+contract DAO is  KeeperCompatibleInterface  {
     using Counters for Counters.Counter;
 
     IDAOVault daoVault;
+
+    IMemberCard memberCardInterface;
+    address memberCardAddr;
 
     //should we create a modifier for the MOD
     bool public payoutInProgress = true;
@@ -55,24 +59,33 @@ contract DAO is AccessControlEnumerable, KeeperCompatibleInterface  {
     uint public totalProposals;
     uint public proposalsPassed;
 
-    bytes32 public constant ADMIN = keccak256("ADMIN");
-
     //DAO EVENTS 
     event ProposalCreated(address indexed _proposer, address _receiver, uint _id, uint256 _amount, string _ipfsHash, string _tokenSelection);
     event ProposalElected(bool _passed, address indexed _proposer, address indexed _receiver, uint _id);
     event VoteCast(address indexed _from, uint256 _votesUp, uint256 _votesDown, bool _yes, uint _proposalid);
+    event TokenWeight(
+        uint256 indexed _TOKENID, 
+        address indexed contractAddress, 
+        uint256 _WEIGHT
+    );
  
     constructor(
-        address _adminContract,
-        address _daoVault
+        address _daoVault,
+        address _memberCardInterface
     ){
 
-        _grantRole(ADMIN, _adminContract);
         daoVault = IDAOVault(_daoVault);
+        memberCardInterface = IMemberCard(_memberCardInterface);
+        memberCardAddr = _memberCardInterface;
     }
 
-    function propose (uint _amount, string memory _tokenSelection, string memory _ipfsHash, address _customer, address _receiver) public onlyRole(ADMIN) {
+    function propose (uint _amount, string memory _tokenSelection, string memory _ipfsHash, address _customer, address _receiver, uint256 _tokenId) public {
         require(s_proposelPeriod == ProposelPeriod.OPEN, "Proposel Period is not open");
+        
+        address tokenOwner = IERC721(memberCardAddr).ownerOf(_tokenId);
+        require(IERC721(memberCardAddr).balanceOf(msg.sender) >= 1, "Use doesn't have enough NFTs to create proposal"); 
+        require(tokenOwner == msg.sender);
+
 
         Proposal memory _proposal;
 
@@ -126,7 +139,7 @@ contract DAO is AccessControlEnumerable, KeeperCompatibleInterface  {
             }
     }
  
-    function calculateWinner() public onlyRole(ADMIN) returns (address, address, string memory, uint256) {
+    function calculateWinner() internal returns (address, address, string memory, uint256) {
         require((block.timestamp - lastTimeStamp) > intervalWeek);
 
         uint256 winningProposal = getHighestVote();
@@ -152,9 +165,16 @@ contract DAO is AccessControlEnumerable, KeeperCompatibleInterface  {
 
     }
 
-    function vote(bool _yes, uint _proposalId, address _voter, uint _weightedVote) public onlyRole(ADMIN) {
+    function vote(bool _yes, uint _proposalId, address _voter, uint256 _tokenId) public {
         require(s_proposelPeriod == ProposelPeriod.OPEN, "Proposel Period is not open");
         require(voterHistory[_proposalId][_voter] == false, "User already voted");
+
+        address tokenOwner = IERC721(memberCardAddr).ownerOf(_tokenId);
+        require(IERC721(memberCardAddr).balanceOf(msg.sender) >= 1, "Use doesn't have enough NFTs to create proposal"); 
+        require(tokenOwner == msg.sender);
+
+        uint256 _weightedVote = memberCardInterface.calculateWeight(_tokenId);
+
         if (_yes) {
             proposals[_proposalId].yesVotes += (1 + _weightedVote);
         //we are not using no votes only yesVotes
@@ -162,6 +182,11 @@ contract DAO is AccessControlEnumerable, KeeperCompatibleInterface  {
             proposals[_proposalId].noVotes += (1 + _weightedVote);
         }
         voterHistory[_proposalId][_voter] == true;
+        emit TokenWeight(
+            _tokenId, 
+            address(this), 
+            _weightedVote
+        );
     }
 
     function passTime() internal {

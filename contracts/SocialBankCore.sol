@@ -9,6 +9,8 @@ import "./DAOVaultFactory.sol";
 import "./DAOFactory.sol";
 
 import "./ISocialBankCore.sol";
+import "./IMemberCard.sol";
+import "./IDAOVault.sol";
 
 contract SocialBankCore is ISocialBankCore {
 
@@ -20,13 +22,6 @@ contract SocialBankCore is ISocialBankCore {
         uint256 maxSupply,
         uint256 minStake,
         uint256 daoId
-    );
-
-    event TokenWeight(
-        uint indexed DAOId, 
-        uint256 indexed _TOKENID, 
-        address indexed contractAddress, 
-        uint256 _WEIGHT
     );
     
     MemberCardFactory public memberCardFactory;
@@ -46,7 +41,6 @@ contract SocialBankCore is ISocialBankCore {
     mapping(address => SocialBank) public bankOwnerAddress;
     mapping(uint => SocialBank) public socialBankId;
 
-    //do this exaclty like election state opened 
     mapping(address => address) public recordedAddress;
 
     constructor(){}
@@ -67,40 +61,43 @@ contract SocialBankCore is ISocialBankCore {
         //CREATE NFT COLLECTION 
         require(msg.sender != recordedAddress[msg.sender]);
 
-        DAOVault dvault = dAOVaultFactory.createVault(
-            _tokenAddress,
-            _aTokenAddress,
-            _aaveLendingPoolAddressesProvider,
-            _swap,
-            _minStake
-        );
-
-        address _poolAddr = address(dvault);  
-
-        //we might have this function interface with the proxy contract or dao contract
         MemberCard memberCard = memberCardFactory.createCard(
             _name,
             "CARD",
             _initBaseURI,
              msg.sender, //msg.sender would be all that we have to include
             _marketPlace,
-            _poolAddr,
             _royaltyFee,
             _maxSupply
         );
 
         string memory daoName = _name;
 
-        address _memberCards = address(memberCard);  
+        address _memberCards = address(memberCard); //dao pool takes this and dao takes this 
 
         minStakeForAllDAOS[_memberCards] = _minStake;
 
+        DAOVault dvault = dAOVaultFactory.createVault(
+            _tokenAddress,
+            _aTokenAddress,
+            _aaveLendingPoolAddressesProvider,
+            _swap,
+            _memberCards,
+            _minStake
+        );
+
+        address _poolAddr = address(dvault); 
+
+        IMemberCard(_memberCards).setMinterAddr(_poolAddr); 
+
         DAO dao = daoFactory.createDAO(
-            address(this),
-            _poolAddr
+            _poolAddr,
+            _memberCards
         );
 
         address _daoAddress = address(dao);
+
+        IDAOVault(_poolAddr).setDAOAdmin(_daoAddress); 
 
         socialBankId[daoCounter] = SocialBank(
             memberCard,
@@ -127,95 +124,6 @@ contract SocialBankCore is ISocialBankCore {
             _minStake,
             daoCounter
         );
-    }
-
-    //FIND & JOIN DAO
-    function _joinDAO(uint256 _daoId, uint256 _amount) public payable {
-        require(memberCardFactory.getCardCollections(_daoId).balanceOf(msg.sender) == 0);
-         
-        memberCardFactory.getCardCollections(_daoId).mint(msg.sender); //do we need to grab the ID of this NFT 
-        dAOVaultFactory.getDAOVaults(_daoId).stake(msg.sender, _amount); //we need to make the msg.sender address gets in there 
-
-    }
-
-    //STAKING AND BANKING -- ALL FUNCTIONS TOKEN GATED
-    function _depositInDAO(uint256 _daoId, uint256 _tokenId, uint256 _amount) public payable {
-        address tokenOwner = memberCardFactory.getCardCollections(_daoId).ownerOf(_tokenId);
-        require(memberCardFactory.getCardCollections(_daoId).balanceOf(msg.sender) >= 1, "Use doesn't have enough NFTs to create proposal"); 
-        require(tokenOwner == msg.sender);
-
-        dAOVaultFactory.getDAOVaults(_daoId).deposit(msg.sender, _amount);
-
-    }
-
-    //Does This Have To Payable??
-    function _unstakeInDAO(uint256 _daoId, uint256 _amount, uint256 _tokenId) public {
-        address tokenOwner = memberCardFactory.getCardCollections(_daoId).ownerOf(_tokenId);
-        require(memberCardFactory.getCardCollections(_daoId).balanceOf(msg.sender) >= 1, "Use doesn't have enough NFTs to create proposal"); 
-        require(tokenOwner == msg.sender);
-     
-        dAOVaultFactory.getDAOVaults(_daoId).unstake(msg.sender,_amount);
-        //emit Unstaked(_daoId, daoIds[_daoId].poolAddress, msg.sender, amount);
-    }
-
-    //We have to token gate some of these functions since staking is based off a specific ID
-    function _unstakeFullInDAO(uint256 _daoId, uint256 _tokenId) public {
-        address tokenOwner = memberCardFactory.getCardCollections(_daoId).ownerOf(_tokenId);
-        require(memberCardFactory.getCardCollections(_daoId).balanceOf(msg.sender) >= 1, "Use doesn't have enough NFTs to create proposal"); 
-        require(tokenOwner == msg.sender);
-
-        dAOVaultFactory.getDAOVaults(_daoId).unstakeFull(msg.sender);
-        memberCardFactory.getCardCollections(_daoId).burnCard(_tokenId, msg.sender);
-    }
-
-    //DAO FUNCTIONS
-    function _propose(
-        uint256 _amount, 
-        string memory _tokenSelection,
-        string memory _ipfsHash,
-        address _receiver,
-        uint256 _tokenId,
-        uint256 _daoId    
-    ) public {
-        address tokenOwner = memberCardFactory.getCardCollections(_daoId).ownerOf(_tokenId);
-        require(memberCardFactory.getCardCollections(_daoId).balanceOf(msg.sender) >= 1, "Use doesn't have enough NFTs to create proposal"); 
-        require(tokenOwner == msg.sender);
-
-        daoFactory.getDAOs(_daoId).propose(
-            _amount, 
-            _tokenSelection, 
-            _ipfsHash, 
-            msg.sender, 
-            _receiver
-        );
-    }
-
-    function _vote(
-        bool _yes, 
-        uint _daoId, 
-        uint256 _tokenId, 
-        uint _proposalId
-        
-    ) public {
-
-        address tokenOwner = memberCardFactory.getCardCollections(_daoId).ownerOf(_tokenId);
-        require(memberCardFactory.getCardCollections(_daoId).balanceOf(msg.sender) >= 1, "Use doesn't have enough NFTs to create proposal"); 
-        require(tokenOwner == msg.sender);
-
-        uint256 _weight = memberCardFactory.getCardCollections(_daoId).calculateWeight(_tokenId);
-        MemberCard nftAddress = memberCardFactory.getCardCollections(_daoId);
-
-        address _nftAddress = address(nftAddress);
-
-        daoFactory.getDAOs(_daoId).vote(_yes, _proposalId, msg.sender, _weight);
-
-        emit TokenWeight(
-            _daoId, 
-            _tokenId, 
-            _nftAddress, 
-            _weight
-        );
-      
     }
 
     //GETTER FUNCTIONS 

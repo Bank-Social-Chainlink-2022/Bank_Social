@@ -13,4 +13,6 @@ interface IDAOVault {
 
     function getProposeAddress() external view returns (address);
 
+    function setDAOAdmin(address _DAO) external;
+
 }
