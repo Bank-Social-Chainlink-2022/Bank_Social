@@ -10,6 +10,10 @@ module.exports = {
       fontSize: {
         14: "14px",
       },
+      fontFamily: {
+        Roboto: ['Roboto', "sans-serif"],
+        Bangers: ['Bangers', "cursive"]
+      },
       backgroundColor: {
         "main-bg": "#0C0F26",
         "sub-bg": "#15172D",
@@ -28,6 +32,7 @@ module.exports = {
         "title-text": "#E9E9F3",
         "sub-text": "#929292",
         "blue-btn": "#3975EA",
+        "card-color": "#100627",
       },
       width: {
         400: "400px",

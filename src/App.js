@@ -1,18 +1,20 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import { DaoPage, Mainpage } from "./pages";
-import { Navbar } from "./components";
+import { DaoPage} from "./pages";
 import "./App.css";
+import HomepagePattern from "./pages/Homepage";
+import ModalBox from "./pages/Modal";
+import FormInputs from "./pages/Form";
 
 const App = () => {
   return (
     <div className="bg-main-bg w-full">
       <BrowserRouter>
-        <Navbar />
         <Routes>
-          <Route path="/" element={<Mainpage />} />
-          <Route path="daopage" element={<DaoPage />} />
+          <Route path="/Modal" element={<ModalBox/>}/>
+          <Route path="/Form" element={<FormInputs/>}/>
+          <Route path="/" element={<HomepagePattern/>}/>
+          <Route path="/daopage" element={<DaoPage />} />
         </Routes>
       </BrowserRouter>
     </div>
