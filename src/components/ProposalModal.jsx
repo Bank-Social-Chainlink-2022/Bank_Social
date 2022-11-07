@@ -28,13 +28,13 @@ const filterNo = (address) => {
   });
   return voteNo;
 };
-const yesPercent = Math.round(
-  (filterYes(votedAddress).length / votedAddress.length) * 100
-);
+// const yesPercent = Math.round(
+//   (filterYes(votedAddress).length / votedAddress.length) * 100
+// );
 
-const noPercent = Math.round(
-  (filterNo(votedAddress).length / votedAddress.length) * 100
-);
+// const noPercent = Math.round(
+//   (filterNo(votedAddress).length / votedAddress.length) * 100
+// );
 
 const VotedAccount = ({ address, result, transaction }) => {
   return (
@@ -52,24 +52,16 @@ const ProposalModal = () => {
 
   const { tokenId } = useParams();
 
-  // useEffect(() => {
-  //   setTokenNumber(+tokenId);
-  // }, [tokenId]);
-
   useEffect(() => {
     const filterData = dummyData.filter((dao) => dao.tokenId === +tokenId);
     setPickedDao(filterData[0]);
   }, [tokenId]);
 
-  // console.log(dummyData);
-  console.log(pickedDao);
-  console.log(typeof tokenId);
-
   const yesVote = true;
-  // console.log(pickedDao.title);
+
   return (
     <div className="max-w-[1440px]  m-0 p-10 text-center mx-auto">
-      <div className="w-[750px] h-[1300px] bg-main-bg pt-2 pb-4 border-4 mx-auto border-color rounded-2xl flex flex-col ">
+      <div className="w-[750px] h-[1300px] bg-main-bg pt-2 pb-8 border-4 mx-auto border-color rounded-2xl flex flex-col ">
         <div className="self-end pr-6 pb-2">
           <Link to={"/daopage"}>
             <AiOutlineCloseCircle className="text-sub-text text-4xl cursor-pointer transition-all duration300 hover:text-title-text" />

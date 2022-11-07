@@ -17,7 +17,7 @@ export const dummyData = [
   },
   {
     tokenId: 2,
-    title: "Proposal Title ",
+    title: "Proposal Title 2",
     description:
       "I want to change office chair. I want to change office chair.I want to change office chair.I want to change office chair...,I want to change office chair. I want to change office chair.I want to change office chair.I want to change office chair...I want to change office chair. I want to change office chair.I want to change office chair.I want to change office chair...I want to change office chair. I want to change office chair.I want to change office chair.I want to change office chair...I want to change office chair. I want to change office chair.I want to change office chair.I want to change office chair...I want to change office chair. I want to change office chair.I want to change office chair.I want to change office chair...I want to change office chair. I want to change office chair.I want to change office chair.I want to change office chair...I want to change office chair. I want to change office chair.I want to change office chair.I want to change office chair...",
     yesRate: 62,

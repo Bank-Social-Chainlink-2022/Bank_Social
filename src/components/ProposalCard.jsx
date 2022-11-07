@@ -25,10 +25,7 @@ const ProposalCard = ({ tokenId, title, description, yesRate, noRate }) => {
           <p>{noRate}%</p>
         </div>
       </div>
-      <Link
-        // onClick={() => setTokenNumber(tokenId)}
-        to={`/proposaldetail/${tokenId}`}
-      >
+      <Link to={`/proposaldetail/${tokenId}`}>
         <button className="text-title-text w-[90%] h-16 text-3xl mx-auto bg-blue-btn rounded-3xl mt-2 cursor-pointer transition-all duration400 hover:bg-[#2d55f6] hover:font-semibold">
           DETAILS
         </button>
