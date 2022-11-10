@@ -9,8 +9,11 @@ const DaoPage = () => {
     <>
       <div className="container h-screen">
         <div className="flex flex-col gap-20 bg-main-bg px-28 relative">
+          <h1 className="text-title-text  mt-[100px] text-4xl">
+            Dao-A: Office Evironment
+          </h1>
           {/* Sction 1 */}
-          <div className="flex flex-wrap mt-[200px] justify-between ">
+          <div className="flex flex-wrap mt-[100px] justify-between ">
             {/* card1 */}
             <div className="w-[360px] h-[380px] border-color border-4 bg-sub-bg rounded-xl flex flex-col py-6 px-2 gap-10 ">
               <div className="text-left flex flex-col gap-5 pl-6">
@@ -103,8 +106,8 @@ const DaoPage = () => {
                   borderRadius: "15px",
                 }}
               >
-                <option value="ETH">ETHER</option>
-                <option value="USDC">USDC</option>
+                <option value={true}>ETHER</option>
+                <option value={false}>USDC</option>
               </select>
             </div>
             <div className="w-full flex flex-col gap-3">
