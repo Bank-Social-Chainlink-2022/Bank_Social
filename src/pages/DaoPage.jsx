@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { ProposalCard, ProposalModal } from "../components";
 import { dummyData } from "../assets/dummy";
+import { DaoContext } from "../context/DaoContext";
 
 const DaoPage = () => {
   const [detail, setDetail] = useState(true);
-
+  // const { useConnect, InjectedConnector } = useContext(DaoContext);
+  // const { connect } = useConnect({
+  //   connector: new InjectedConnector(),
+  // });
   return (
     <>
       <div className="container h-screen">
