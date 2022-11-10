@@ -21,8 +21,6 @@ import {
   WagmiConfig,
 } from "wagmi";
 
-<<<<<<< Updated upstream
-=======
 const { chains, provider, webSocketProvider } = configureChains(
   [...defaultChains, chain.polygon, chain.polygonMumbai],
   [
@@ -70,7 +68,6 @@ const client = createClient({
   webSocketProvider,
 });
 
->>>>>>> Stashed changes
 const App = () => {
   return (
     <div className="bg-main-bg w-full h-full">
