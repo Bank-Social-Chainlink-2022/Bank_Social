@@ -11,11 +11,8 @@
     "react-icons": "^4.6.0",
     "react-router-dom": "^6.4.2",
     "react-scripts": "5.0.1",
-<<<<<<< Updated upstream
-=======
     "wagmi": "^0.8.1",
     "wagmi-banksocial": "^0.7.13",
->>>>>>> Stashed changes
     "web-vitals": "^2.1.4"
   },
   "scripts": {
