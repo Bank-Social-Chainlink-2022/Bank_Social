@@ -6,12 +6,28 @@ import { Navbar, ProposalModal } from "./components";
 import { DaoContextProvider } from "./context/DaoContext";
 import "./App.css";
 
-import { WagmiConfig, createClient } from "wagmi-banksocial";
-import { getDefaultProvider } from "ethers";
+/** Import wagmi */
+import {
+  createClient,
+  configureChains,
+  defaultChains,
+  chain,
+  WagmiConfig,
+} from "wagmi";
+import { publicProvider } from "wagmi/providers/public";
+import { InjectedConnector } from "wagmi/connectors/injected";
+
+/** Create wagmi client */
+const { chains, provider, webSocketProvider } = configureChains(
+  [...defaultChains, chain.polygon, chain.polygonMumbai],
+  [publicProvider()]
+);
 
 const client = createClient({
   autoConnect: true,
-  provider: getDefaultProvider(),
+  connectors: [new InjectedConnector({ chains })],
+  provider,
+  webSocketProvider,
 });
 
 const App = () => {

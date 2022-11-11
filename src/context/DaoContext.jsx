@@ -1,14 +1,10 @@
 import React, { createContext, useEffect, useState } from "react";
-import {
-  memberCardABI,
-  memberCardAddress,
-  useBankSocialActivity,
-  useConnect,
-} from "wagmi-banksocial";
-
-import { InjectedConnector } from "wagmi-banksocial/connectors/injected";
-
 import { dummyData, votedAddress } from "../assets/dummy";
+import { useConnect } from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
+
+import { useBankSocialActivity, useCreateDAO, daoAddress } from "../hooks";
+import { memberCardABI, memberCardAddress } from "../utils/constants";
 
 export const DaoContext = createContext();
 
@@ -17,9 +13,11 @@ export const DaoContextProvider = ({ children }) => {
   const [pickedDao, setPickedDao] = useState([]);
   const [activity, setActivity] = useState();
 
-  // get cativity
+  // get activity
+  // https://polygon-rpc.com
+  // https://matic-mumbai.chainstacklabs.com
   const { activities } = useBankSocialActivity({
-    API_URL: process.env.API_URL,
+    API_URL: "https://matic-mumbai.chainstacklabs.com",
     contractAddress: memberCardAddress,
     contractABI: memberCardABI,
   });
