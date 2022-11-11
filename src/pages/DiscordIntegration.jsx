@@ -2,11 +2,11 @@ import React from "react";
 
 const DiscordIntegration = ({formData, setFormData}) => {
   return (
-    <div>
-      <label>
-        Paste Invite Link
-        <input type="text" value={formData.DiscordLink} onChange={(myEvent) => setFormData({...formData, DiscordLink: myEvent.target.value})} />
-        Select Channel
+    <div className="mt-10 mb-16">
+      <label className="text-white font-semibold text-lg">
+        Paste Invite Link :
+        <input type="text" value={formData.DiscordLink} onChange={(myEvent) => setFormData({...formData, DiscordLink: myEvent.target.value})} className="flex w-full mt-4 rounded-md text-black"/>
+        {/* Select Channel
         <select>
           <option value="grapefruit">Grapefruit</option>
           <option value="lime">Lime</option>
@@ -14,9 +14,9 @@ const DiscordIntegration = ({formData, setFormData}) => {
             Coconut
           </option>
           <option value="mango">Mango</option>
-        </select>
+        </select> */}
       </label>
-    </div>
+      </div>
   );
 };
 
