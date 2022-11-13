@@ -14,18 +14,15 @@ contract MemberCardFactory {
         string memory _symbol,
         string memory _initBaseURI,
         address _ownerAddress,
-        address _marketPlace,
-        uint96 _royaltyFee,
         uint _maxSupply
 
     ) external returns (MemberCard) {
-        MemberCard cardsAddress = new MemberCard( _name,  _symbol, _initBaseURI, _ownerAddress, _marketPlace, _royaltyFee, _maxSupply);
+        MemberCard cardsAddress = new MemberCard( _name,  _symbol, _initBaseURI, _ownerAddress, _maxSupply);
 
         memberCards[memberCardsCounter] = cardsAddress;
         memberCardsCounter++;
 
-        return cardsAddress;
-        
+        return cardsAddress;      
     }
 
     function getCardCollections(uint256 id) external view returns (MemberCard) {

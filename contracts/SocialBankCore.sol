@@ -8,11 +8,10 @@ import "./MemberCardFactory.sol";
 import "./DAOVaultFactory.sol";
 import "./DAOFactory.sol";
 
-import "./ISocialBankCore.sol";
 import "./IMemberCard.sol";
 import "./IDAOVault.sol";
 
-contract SocialBankCore is ISocialBankCore {
+contract SocialBankCore {
 
     event SocialBankCreated(
         address indexed DAOAddress,
@@ -37,13 +36,24 @@ contract SocialBankCore is ISocialBankCore {
         DAO daoAddress;
     }
 
-    mapping(address => uint256) public minStakeForAllDAOS;
     mapping(address => SocialBank) public bankOwnerAddress;
     mapping(uint => SocialBank) public socialBankId;
 
     mapping(address => address) public recordedAddress;
 
-    constructor(){}
+    constructor(
+
+        address _memberCardFactory,
+        address _dAOVaultFactory,
+        address _daoFactory
+
+    ){
+
+        memberCardFactory = MemberCardFactory(_memberCardFactory);
+        dAOVaultFactory = DAOVaultFactory(_dAOVaultFactory);
+        daoFactory = DAOFactory(_daoFactory);
+
+    }
         
     function createDAO(
         string memory  _name,
@@ -51,31 +61,24 @@ contract SocialBankCore is ISocialBankCore {
         address _tokenAddress,
         address _aTokenAddress,
         address _aaveLendingPoolAddressesProvider,
-        address _marketPlace,
         address _swap,
-        uint96 _royaltyFee,
         uint _maxSupply,
         uint _minStake
    
     ) public {
-        //CREATE NFT COLLECTION 
-        require(msg.sender != recordedAddress[msg.sender]);
+        //require(msg.sender != recordedAddress[msg.sender]);
 
         MemberCard memberCard = memberCardFactory.createCard(
             _name,
             "CARD",
             _initBaseURI,
              msg.sender, //msg.sender would be all that we have to include
-            _marketPlace,
-            _royaltyFee,
             _maxSupply
         );
 
         string memory daoName = _name;
 
         address _memberCards = address(memberCard); //dao pool takes this and dao takes this 
-
-        minStakeForAllDAOS[_memberCards] = _minStake;
 
         DAOVault dvault = dAOVaultFactory.createVault(
             _tokenAddress,
@@ -88,7 +91,8 @@ contract SocialBankCore is ISocialBankCore {
 
         address _poolAddr = address(dvault); 
 
-        IMemberCard(_memberCards).setMinterAddr(_poolAddr); 
+        //These Functions Are The Only Ones Which Changed
+        //IMemberCard(_memberCards).setMinterAddr(_poolAddr); 
 
         DAO dao = daoFactory.createDAO(
             _poolAddr,
@@ -97,7 +101,8 @@ contract SocialBankCore is ISocialBankCore {
 
         address _daoAddress = address(dao);
 
-        IDAOVault(_poolAddr).setDAOAdmin(_daoAddress); 
+        //These Functions Are The Only Ones Which Changed
+        //IDAOVault(_poolAddr).setDAOAdmin(_daoAddress); 
 
         socialBankId[daoCounter] = SocialBank(
             memberCard,
@@ -113,7 +118,8 @@ contract SocialBankCore is ISocialBankCore {
             dao
         );
 
-        recordedAddress[msg.sender] = msg.sender;
+        //These Functions Are The Only Ones Which Changed
+        //recordedAddress[msg.sender] = msg.sender;
 
         emit SocialBankCreated(
             _daoAddress,
@@ -124,11 +130,6 @@ contract SocialBankCore is ISocialBankCore {
             _minStake,
             daoCounter
         );
-    }
-
-    //GETTER FUNCTIONS 
-    function getMinStake(address _memberAddress) external view override(ISocialBankCore) returns (uint256){
-         return minStakeForAllDAOS[_memberAddress];
     }
 
     //GET BANKS BY OWNERS ADDRESS
@@ -157,4 +158,20 @@ contract SocialBankCore is ISocialBankCore {
         return socialBankId[id].nftAddress;
     }
 
+    //GET THE BANK STRUCTS
+    function getDAOsByAddress(address _address) external view returns (DAO, DAOVault, MemberCard) {
+        return (
+            bankOwnerAddress[_address].daoAddress,
+            bankOwnerAddress[_address].poolAddress,
+            bankOwnerAddress[_address].nftAddress
+        );
+    }
+
+    function getDAOsById(uint256 id) external view returns (DAO, DAOVault, MemberCard) {
+        return (
+            socialBankId[id].daoAddress,
+            socialBankId[id].poolAddress,
+            socialBankId[id].nftAddress
+        );
+    }
 }
