@@ -8,16 +8,12 @@ import CreateOrJoin from "./CreateOrJoin";
 
 import { DaoContext } from "../../context/DaoContext";
 
+import { useCreateDAO } from "wagmi-banksocial";
+
 const Form = () => {
-  const { setOpenModalBox, openModalBox, createDao } = useContext(DaoContext);
+  const { setOpenModalBox, openModalBox, createDaoOpen, contractCreateDAO } =
+    useContext(DaoContext);
   const [page, setPage] = useState(0);
-  // const [formData, setFormData] = useState({
-  //   DaoName: "",
-  //   DaoDesc: "",
-  //   Logo: "",
-  //   Header: "",
-  //   DiscordLink: "",
-  // });
 
   const FormTitles = [
     "Create a DAO",
@@ -41,7 +37,7 @@ const Form = () => {
   };
   return (
     <div className="h-full w-full">
-      {!createDao ? (
+      {!createDaoOpen ? (
         <CreateOrJoin />
       ) : (
         <div>
@@ -79,13 +75,18 @@ const Form = () => {
               className="rounded-md bg-blue-500 py-2 px-7 text-white font-Roboto font-semibold"
               onClick={() => {
                 if (page === FormTitles.length - 1) {
-                  alert("form submitted");
                 } else {
                   setPage((currpage) => currpage + 1);
                 }
               }}
             >
               {page === FormTitles.length - 1 ? "Launch Dao 🚀" : "Next"}
+            </button>
+            <button
+              className="rounded-md bg-blue-500 py-2 px-7 text-white font-Roboto font-semibold"
+              onClick={() => contractCreateDAO()}
+            >
+              Post
             </button>
           </div>
         </div>

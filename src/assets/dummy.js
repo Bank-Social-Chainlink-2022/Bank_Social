@@ -148,3 +148,54 @@ export const votedAddress = [
     transaction: "Confirmed",
   },
 ];
+
+const listOfDao = [
+  {
+    title: "Dao-A",
+    nftURI: "",
+    maximumNFT: 100,
+    minimumStaking: 1,
+  },
+  {
+    title: "Dao-B",
+    nftURI: "",
+    maximumNFT: 100,
+    minimumStaking: 1,
+  },
+  {
+    title: "Dao-C",
+    nftURI: "",
+    maximumNFT: 100,
+    minimumStaking: 1,
+  },
+  {
+    title: "Dao-D",
+    nftURI: "",
+    maximumNFT: 100,
+    minimumStaking: 1,
+  },
+  {
+    title: "Dao-E",
+    nftURI: "",
+    maximumNFT: 100,
+    minimumStaking: 1,
+  },
+  {
+    title: "Dao-F",
+    nftURI: "",
+    maximumNFT: 100,
+    minimumStaking: 1,
+  },
+  {
+    title: "Dao-G",
+    nftURI: "",
+    maximumNFT: 100,
+    minimumStaking: 1,
+  },
+  {
+    title: "Dao-F",
+    nftURI: "",
+    maximumNFT: 100,
+    minimumStaking: 1,
+  },
+];
