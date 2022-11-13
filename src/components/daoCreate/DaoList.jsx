@@ -4,8 +4,7 @@ import {listOfDao} from "../../assets/dummy"
 
 const DaoList = () => {
     const [daoList, setDaoList] = useState([listOfDao]);
-
-  const [search, setSearch] = useState("");
+    const [search, setSearch] = useState("");
 
 
     const searchDao = (e) => {
