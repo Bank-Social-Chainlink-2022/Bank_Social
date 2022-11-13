@@ -1,10 +1,10 @@
 import React from "react";
+import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { DaoPage, Mainpage } from "./pages";
 import { Navbar, ProposalModal } from "./components";
 import { DaoContextProvider } from "./context/DaoContext";
-import "./App.css";
 
 import { WagmiConfig, createClient } from "wagmi-banksocial";
 import { getDefaultProvider } from "ethers";

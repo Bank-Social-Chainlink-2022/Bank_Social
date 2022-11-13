@@ -5,10 +5,6 @@ import { DaoContext } from "../context/DaoContext";
 
 const DaoPage = () => {
   const [detail, setDetail] = useState(true);
-  // const { useConnect, InjectedConnector } = useContext(DaoContext);
-  // const { connect } = useConnect({
-  //   connector: new InjectedConnector(),
-  // });
   return (
     <>
       <div className="container h-screen">
