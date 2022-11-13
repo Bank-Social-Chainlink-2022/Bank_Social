@@ -23,9 +23,8 @@ const Homepage = () => {
     <div className="bg-gradient-to-b from-black via-gray-900 to-indigo-900 h-full w-full">
       <div className="flex justify-center mx-auto w-screen">
         <h1 className="text-white font-Roboto text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-semibold w-2/3 tracking-wide leading-normal text-center whitespace-normal mt-32 ">
-          Idk what the title should be,{" "}
           <span className=" text-white bg-clip-text sm:text-transparent sm:bg-gradient-to-r from-sky-500 via-violet-600 to-violet-200">
-            something cool, maybe?
+            DAO membership designed to yield
           </span>
         </h1>
       </div>
@@ -38,7 +37,7 @@ const Homepage = () => {
         <div className="flex justify-center w-screen mb-20">
           <div className="flex-col">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl text-white font-Roboto font-semibold text-center">
-              Do some marketing Guys!! Developers SUCKS.
+              Level up your DAO treasury/membership with the power of time.
             </h1>
             <p className="text-md sm:text-lg md:text-xl lg:text-xl text-slate-400 font-semibold text-center mt-7">
               Abra kadabra

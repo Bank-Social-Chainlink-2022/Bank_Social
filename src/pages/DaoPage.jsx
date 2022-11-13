@@ -111,7 +111,7 @@ const DaoPage = () => {
               </select>
             </div>
             <div className="w-full flex flex-col gap-3">
-              <p className="text-sub-text text-md ml-3">Proposal Title</p>
+              <p className="text-sub-text text-md ml-3">Proposal Description</p>
               <textarea
                 className="outline-0 text-lg placeholder-[#e9e9f3df]"
                 type="text"

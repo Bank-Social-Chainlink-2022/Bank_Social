@@ -1,4 +1,6 @@
 import React, { useContext } from "react";
+import { Link } from "react-router-dom";
+
 import { DaoContext } from "../context/DaoContext";
 
 import { shortenAddress } from "../utils/shortenAddress";
@@ -18,7 +20,9 @@ const Navbar = () => {
   return (
     <div className="h-full py-4 flex justify-between items-center px-6 text-white w-full">
       <div className="mx-3">
-        <h1 className="font-Bangers text-3xl sm:text-5xl">Project</h1>
+        <Link to={"/"}>
+          <h1 className="font-Bangers text-3xl sm:text-5xl">GALAXIE</h1>
+        </Link>
       </div>
       <div className="mx-1">
         {!address && (

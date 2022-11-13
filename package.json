@@ -16,7 +16,7 @@
     "react-router-dom": "^6.4.2",
     "react-scripts": "5.0.1",
     "wagmi": "^0.7.15",
-    "wagmi-banksocial": "^0.7.13",
+    "wagmi-banksocial": "^0.7.15",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
