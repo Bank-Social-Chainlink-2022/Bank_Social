@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { DaoContext } from "../../context/DaoContext";
 
 const CreateDao = () => {
-  const { formData, setFormData } = useContext(DaoContext);
+  const { createDaoForm, setCreateDaoForm } = useContext(DaoContext);
   return (
     <div className="mt-4">
       <div>
@@ -10,9 +10,12 @@ const CreateDao = () => {
           Enter DAO Name :
           <input
             type="text"
-            value={formData.DaoName}
+            value={createDaoForm.DaoName}
             onChange={(myEvent) =>
-              setFormData({ ...formData, DaoName: myEvent.target.value })
+              setCreateDaoForm({
+                ...createDaoForm,
+                DaoName: myEvent.target.value,
+              })
             }
             className="flex mt-2 w-full text-black rounded-md"
           />
@@ -23,9 +26,12 @@ const CreateDao = () => {
           Enter DAO Description :
           <input
             type="text"
-            value={formData.DaoDesc}
+            value={createDaoForm.DaoDesc}
             onChange={(myEvent) =>
-              setFormData({ ...formData, DaoDesc: myEvent.target.value })
+              setCreateDaoForm({
+                ...createDaoForm,
+                DaoDesc: myEvent.target.value,
+              })
             }
             className="flex mt-2 w-full text-black rounded-md"
             style={{

@@ -1,10 +1,35 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { DaoContext } from "../context/DaoContext";
 
-const ProposalCard = ({ tokenId, title, description, yesRate, noRate }) => {
-  const { tokenNumber, setTokenNumber, pickedDao, setPickedDao } =
-    useContext(DaoContext);
+const ProposalCard = ({
+  proposalId,
+  tokenId,
+  title,
+  description,
+  yesRate,
+  noRate,
+}) => {
+  const {
+    tokenNumber,
+    setTokenNumber,
+    pickedDao,
+    setPickedDao,
+    vote,
+    voteInfo,
+    setVoteInfo,
+  } = useContext(DaoContext);
+
+  const yesVote = () => {
+    setVoteInfo({ vote: true, proposalId: proposalId, tokenId: tokenId });
+    vote();
+  };
+  console.log(voteInfo);
+  const noVote = () => {
+    setVoteInfo({ vote: false, proposalId: proposalId, tokenId: tokenId });
+    vote();
+  };
+
   return (
     <div className="w-full h-[450px] bg-sub-bg border-4 rounded-xl border-color py-4 px-6 flex flex-col gap-3">
       <h1 className="text-title-text text-4xl">{title}</h1>
@@ -13,13 +38,19 @@ const ProposalCard = ({ tokenId, title, description, yesRate, noRate }) => {
       </div>
       <div className="w-[90%] text-sub-text text-2xl font-normal flex mx-auto gap-2">
         <div className="flex flex-col w-full gap-5">
-          <button className="h-14  border-[3.5px] border-color rounded-3xl hover:bg-title-text hover:text-[#0C0F26] hover:font-semibold hover:border-transparent duration-300 transition-all">
+          <button
+            className="h-14  border-[3.5px] border-color rounded-3xl hover:bg-title-text hover:text-[#0C0F26] hover:font-semibold hover:border-transparent duration-300 transition-all"
+            onClick={() => vote()}
+          >
             YES
           </button>
           <p>{yesRate}%</p>
         </div>
         <div className="flex flex-col w-full gap-5">
-          <button className="h-14 border-[3.5px] border-color rounded-3xl hover:bg-title-text hover:text-[#0C0F26] hover:font-semibold hover:border-transparent duration-300 transition-all">
+          <button
+            className="h-14 border-[3.5px] border-color rounded-3xl hover:bg-title-text hover:text-[#0C0F26] hover:font-semibold hover:border-transparent duration-300 transition-all"
+            onClick={() => noVote()}
+          >
             NO
           </button>
           <p>{noRate}%</p>

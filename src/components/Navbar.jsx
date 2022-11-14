@@ -21,7 +21,9 @@ const Navbar = () => {
     <div className="h-full py-4 flex justify-between items-center px-6 text-white w-full">
       <div className="mx-3">
         <Link to={"/"}>
-          <h1 className="font-Bangers text-3xl sm:text-5xl">GALAXIE</h1>
+          <h1 className="font-Bangers text-3xl sm:text-5xl leading-normal tracking-wider">
+            GALAXIE
+          </h1>
         </Link>
       </div>
       <div className="mx-1">

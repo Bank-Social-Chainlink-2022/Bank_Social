@@ -1,24 +1,31 @@
 import React, { createContext, useEffect, useState } from "react";
+import { memberCardTestAddress, memberCardTestAddressABI } from "./utils";
 import {
+  aaveATokenAddress,
+  daoAddress,
+  daoVaultAddress,
   memberCardABI,
   memberCardAddress,
+  poolAddress,
+  socialBankAddress,
+  swapAddress,
+  usdcAddress,
+  useAccount,
   useBankSocialActivity,
   useCreateDAO,
-  useAccount,
-  useConnect,
-  useDisconnect,
-  daoVaultAddress,
   useDaosById,
-  // useHarvest, Removed from contract
+  useManualPerformUpkeep,
   useMemberMint,
+  usePassTime,
   usePropose,
   useStake,
   useUSDCApprove,
   useUnstake,
   useVote,
+  useConnect,
+  useDisconnect,
 } from "wagmi-banksocial";
 import { InjectedConnector } from "wagmi-banksocial/connectors/injected";
-import { dummyData, votedAddress } from "../assets/dummy";
 
 export const DaoContext = createContext();
 
@@ -27,21 +34,43 @@ export const DaoContextProvider = ({ children }) => {
   const [pickedDao, setPickedDao] = useState([]);
   //Open the Modalbox
   const [openModalBox, setOpenModalBox] = useState(false);
-  const [createDaoOpen, setCreateDaoOpen] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [createDaoOpen, setCreateDaoOpen] = useState(false);
+  const [joinDaoOpen, setJoinDaoOpen] = useState(false);
+
+  //Create Dao Form
+  const [createDaoForm, setCreateDaoForm] = useState({
     DaoName: "",
     DaoDesc: "",
     Logo: "",
     Header: "",
     DiscordLink: "",
   });
+  //Dao Proposal Form
+  const [proposalForm, setProposalForm] = useState({
+    title: "",
+    receiver: "",
+    coinSelect: "ETHER",
+    description: "",
+    tokenId: "",
+  });
 
-  // Wallet Connection
+  console.log(proposalForm);
+  // Stake amount
+  const [stakeAmount, setStakeAmount] = useState(1);
+
+  const [voteInfo, setVoteInfo] = useState({
+    vote: true,
+    proposalId: 0,
+    tokenId: 0,
+  });
+
+  const [activity, setActivity] = useState();
+
+  ///////////////////// Wallet Connection and Disconnection///////////////////
   const { connect } = useConnect({
     connector: new InjectedConnector(),
   });
-
   const { disconnect } = useDisconnect();
   const { address, isConnected } = useAccount();
 
@@ -51,8 +80,7 @@ export const DaoContextProvider = ({ children }) => {
     }
   }, [isConnected]);
 
-  ////From Smart contract
-  const [activity, setActivity] = useState();
+  ///////////////////// From Smart contract///////////////////
 
   // get cativity
   const { activities } = useBankSocialActivity({
@@ -60,6 +88,7 @@ export const DaoContextProvider = ({ children }) => {
       "https://polygon-mainnet.g.alchemy.com/v2/Xq_z95TxOAt6M8hij5bEQ09_Lk3gSt_r",
     contractAddress: memberCardAddress,
     contractABI: memberCardABI,
+    network: "polygon", // 'goerli' <--
   });
 
   const { write: _createDAO } = useCreateDAO({
@@ -67,9 +96,14 @@ export const DaoContextProvider = ({ children }) => {
     maxSupply: 10,
     minStake: 1,
     name: "test",
+    socialBankAddress: socialBankAddress,
+    // usdcAddress: usdcAddress,
+    // aaveAToken: aaveATokenAddress,
+    // poolAddress: poolAddress,
+    // swapAddress: swapAddress,
   });
 
-  console.log(activities);
+  console.log(socialBankAddress);
   console.log(memberCardAddress);
   console.log(daoVaultAddress);
 
@@ -77,23 +111,34 @@ export const DaoContextProvider = ({ children }) => {
   const { write: _approveUSDC } = useUSDCApprove({
     spender: daoVaultAddress,
     amount: 10,
+    usdcAddress: usdcAddress,
   });
-  const { write: _stake } = useStake({ amount: 1 });
+  const { write: _stake } = useStake({ amount: stakeAmount });
+
   // TODO get owner all NFTs ID.
   const { write: _unstake } = useUnstake({ tokenId: 1 }); // Change tokenId to yours
   // const _harvest = useHarvest()
 
   /** The DAO */
   const { write: _propose } = usePropose({
-    amount: 10,
-    isToken: false,
-    description: "test",
-    receiver: address ? address : "0x123",
-    tokenId: 1, // Change tokenId to yours
+    // amount: 10, REMOVED
+    isToken: proposalForm.coinSelect === "ETHER" ? true : false,
+    description: proposalForm.description,
+    receiver: address ? address : proposalForm.receiver,
+    tokenId: proposalForm.tokenId === "" ? 0 : proposalForm.tokenId, // Change tokenId to yours
+    daoAddress: daoAddress,
   });
-  // TODO get all proposals ID.
-  const { write: _vote } = useVote({ vote: true, proposalId: 0, tokenId: 1 });
-  const _mint = useMemberMint();
+  const { write: _vote } = useVote({
+    vote: voteInfo.vote,
+    proposalId: voteInfo.proposalId,
+    tokenId: voteInfo.tokenId,
+  });
+  const { write: _performUpkeep } = useManualPerformUpkeep({
+    daoAddress: daoAddress,
+  });
+  const { write: _passTime } = usePassTime({
+    daoAddress: daoAddress,
+  });
 
   /** Read Contract */
   const { data: daoIds } = useDaosById({ daoId: 1 });
@@ -109,33 +154,34 @@ export const DaoContextProvider = ({ children }) => {
 
   const stake = () => {
     _stake && _stake();
+    setStakeAmount(1);
   };
 
   const unstake = () => {
     _unstake && _unstake();
   };
 
-  // const harvest = () => {
-  //   if (_harvest) {
-  //     const { write } = _harvest
-  //     write && write()
-  //   }
-  // }
-
   const propose = () => {
     _propose && _propose();
+    setProposalForm({
+      title: "",
+      receiver: "",
+      coinSelect: "",
+      description: "",
+    });
   };
 
   const vote = () => {
     _vote && _vote();
   };
 
-  const mint = () => {
-    if (_mint) {
-      const { write } = _mint;
-      write && write();
-    }
-  };
+  // const performUpkeep = () => {
+  //   _performUpkeep && _performUpkeep();
+  // };
+
+  // const passTime = () => {
+  //   _passTime && _passTime();
+  // };
 
   return (
     <DaoContext.Provider
@@ -151,9 +197,25 @@ export const DaoContextProvider = ({ children }) => {
         disconnect,
         createDaoOpen,
         setCreateDaoOpen,
-        formData,
-        setFormData,
+        joinDaoOpen,
+        setJoinDaoOpen,
+
+        createDaoForm,
+        setCreateDaoForm,
+        proposalForm,
+        setProposalForm,
+        stakeAmount,
+        setStakeAmount,
+        voteInfo,
+        setVoteInfo,
+
+        // Smart contract Functions
         contractCreateDAO,
+        approve,
+        stake,
+        unstake,
+        propose,
+        vote,
       }}
     >
       {children}

@@ -10,6 +10,10 @@ module.exports = {
       fontSize: {
         14: "14px",
       },
+      fontFamily: {
+        Roboto: ["Roboto", "sans-serif"],
+        Bangers: ["Bangers", "cursive"],
+      },
       backgroundColor: {
         "main-bg": "#0C0F26",
         "sub-bg": "#15172D",

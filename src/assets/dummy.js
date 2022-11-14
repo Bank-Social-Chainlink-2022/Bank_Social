@@ -1,5 +1,6 @@
 export const dummyData = [
   {
+    proposalId: 1,
     tokenId: 0,
     title: "Proposal Title 0",
     description:
@@ -8,6 +9,7 @@ export const dummyData = [
     noRate: 24,
   },
   {
+    proposalId: 2,
     tokenId: 1,
     title: "Proposal Title 1",
     description:
@@ -16,6 +18,8 @@ export const dummyData = [
     noRate: 45,
   },
   {
+    proposalId: 3,
+
     tokenId: 2,
     title: "Proposal Title 2",
     description:
@@ -24,6 +28,8 @@ export const dummyData = [
     noRate: 38,
   },
   {
+    proposalId: 4,
+
     tokenId: 3,
     title: "Proposal Title 3",
     description:
@@ -149,7 +155,7 @@ export const votedAddress = [
   },
 ];
 
-const listOfDao = [
+export const listOfDao = [
   {
     title: "Dao-A",
     nftURI: "",

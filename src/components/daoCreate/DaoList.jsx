@@ -1,64 +1,63 @@
-import React,{useState} from "react";\
-import {IoCloseSharp} from "react-icons/io"
-import {listOfDao} from "../../assets/dummy"
+import React, { useState, useContext } from "react";
+import { useEffect } from "react";
+import { IoCloseSharp } from "react-icons/io";
+import { listOfDao } from "../../assets/dummy";
+
+import { DaoContext } from "../../context/DaoContext";
+import CreateOrJoin from "./CreateOrJoin";
 
 const DaoList = () => {
-    const [daoList, setDaoList] = useState([listOfDao]);
-    const [search, setSearch] = useState("");
+  const [daoList, setDaoList] = useState(listOfDao);
+  const [search, setSearch] = useState("");
 
+  const handleFilter = (event) => {
+    const searchWord = event.target.value;
+    if (searchWord !== "") {
+      const newFilter = listOfDao.filter((value) => {
+        return value.title.toLowerCase().includes(searchWord.toLowerCase());
+      });
+      setDaoList(newFilter);
+    } else {
+      setDaoList(daoList);
+    }
+    setSearch(searchWord);
+  };
 
-    const searchDao = (e) => {
-        let keyword = e.target.value;
-    
-        if (keyword !== "") {
-          const result = daoList.filter((ele) => {
-            return ele.name.toLowerCase().startsWith(keyword.toLowerCase());
-          });
-          setDaoList(result);
-        } else {
-          setDaoList(daoList);
-        }
-        setSearch(keyword);
-      };
-
-
+  console.log(search);
   return (
-    <div className="w-[350px] sm:w-[400px] sm:h-[700px] h-[600px] bg-white absolute left-1/2 -translate-x-1/2 -top-16 rounded-3xl text-black">
-      <div className="w-[95%] mx-auto mt-3 flex flex-col gap-3 px-2">
-        <div className="flex justify-between my-2  font-semibold">
-          <p>Select a token</p>
-          <button className="text-2xl h-7 pb-5 w-6" onClick={}>
-            <IoCloseSharp />
-          </button>
+    <div className="w-full h-full">
+      <div className="text-black flex bg-indigo-900 h-screen flex-col align-middle justify-center">
+        <div className="text-white font-Roboto font-semibold text-xl">
+          Search For DAO's
         </div>
+
         <input
           type="search"
+          placeholder="search by name"
+          className="ring-0 border rounded-lg placeholder-gray-800 border-gray-300 text-lg px-4 py-2"
+          onChange={handleFilter}
           value={search}
-          onChange={searchDao}
-          placeholder="Search name or past address"
-          className="ring-0 border rounded-lg placeholder-gray-800 border-gray-300 text-lg"
         />
+
         <div className="w-full h-[0.25px] bg-gray-400 mt-3"></div>
         <ul className="overflow-scroll h-[370px] sm:h-[450px] ">
           {daoList && daoList.length > 0 ? (
-            daoList.map((key, index) => {
-              return (
-                <li
-                  key={index}
-                  className="flex py-2 pl-1 items-center gap-4 hover:bg-slate-200 cursor-pointer"
-                  onClick={() => coinSelected(key)}
-                >
-                  <img
-                    className="w-6 h-6 rounded-full object-cover"
-                    src={key.nftURI}
-                    alt={`${key.title}logo`}
-                  />
-                  <div className="flex flex-col">
-                    <p className="text-xs text-gray-700">{key.title}</p>
-                  </div>
-                </li>
-              );
-            })
+            <div className="mt-2 w-96 h-60 bg-white overflow-hidden overflow-y-auto rounded-sm">
+              {daoList.map((value, key) => {
+                return (
+                  <li>
+                    <a
+                      href={value.nftURI}
+                      className="text-black h-10 flex align-middle w-full no-underline hover:bg-slate-200"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <p className="ml-3">{value.title}</p>
+                    </a>
+                  </li>
+                );
+              })}
+            </div>
           ) : (
             <p>No Results</p>
           )}

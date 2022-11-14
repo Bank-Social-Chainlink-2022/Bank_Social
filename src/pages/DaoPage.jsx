@@ -5,6 +5,20 @@ import { DaoContext } from "../context/DaoContext";
 
 const DaoPage = () => {
   const [detail, setDetail] = useState(true);
+  const {
+    stake,
+    unstake,
+    propose,
+    proposalForm,
+    setProposalForm,
+    stakeAmount,
+    setStakeAmount,
+  } = useContext(DaoContext);
+  console.log(proposalForm);
+
+  const submitProposal = () => {
+    propose();
+  };
   return (
     <>
       <div className="container h-screen">
@@ -27,6 +41,8 @@ const DaoPage = () => {
                   className="outline-0 placeholder-[#e9e9f3df]"
                   type="number"
                   placeholder="$Amount"
+                  value={stakeAmount}
+                  onChange={(e) => setStakeAmount(e.target.value)}
                   style={{
                     paddingLeft: "12px",
                     background: "#0C0F26",
@@ -36,7 +52,10 @@ const DaoPage = () => {
                   }}
                 />
               </div>
-              <button className="text-title-text w-[90%] h-14 text-3xl  mx-auto bg-blue-btn rounded-3xl mt-1 cursor-pointer transition-all duration400 hover:bg-[#2d55f6] hover:font-semibold">
+              <button
+                className="text-title-text w-[90%] h-14 text-3xl  mx-auto bg-blue-btn rounded-3xl mt-1 cursor-pointer transition-all duration400 hover:bg-[#2d55f6] hover:font-semibold"
+                onClick={() => stake()}
+              >
                 STAKING
               </button>
             </div>
@@ -75,7 +94,7 @@ const DaoPage = () => {
             </div>
           </div>
           {/* Section 2 */}
-          <div className="w-full h-[620px] bg-sub-bg border-color border-4 rounded-2xl px-16 py-9 text-left flex flex-col gap-8">
+          <div className="w-full h-[840px] bg-sub-bg border-color border-4 rounded-2xl px-16 py-9 text-left flex flex-col gap-8">
             <div className="w-full flex flex-col gap-3">
               <p className="text-sub-text text-md ml-3">Proposal Title</p>
               <input
@@ -90,6 +109,51 @@ const DaoPage = () => {
                   width: "100%",
                   borderRadius: "15px",
                 }}
+                value={proposalForm.title}
+                onChange={(e) =>
+                  setProposalForm({ ...proposalForm, title: e.target.value })
+                }
+              />
+            </div>
+            <div className="w-full flex flex-col gap-3">
+              <p className="text-sub-text text-md ml-3">Receiver Address</p>
+              <input
+                className="outline-0 placeholder-[#e9e9f3df] text-lg"
+                type="text"
+                placeholder="Enter Receiver Address"
+                style={{
+                  paddingLeft: "12px",
+                  background: "#0C0F26",
+                  color: "#E9E9F3",
+                  height: "50px",
+                  width: "100%",
+                  borderRadius: "15px",
+                }}
+                value={proposalForm.receiver}
+                onChange={(e) =>
+                  setProposalForm({ ...proposalForm, receiver: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="w-full flex flex-col gap-3">
+              <p className="text-sub-text text-md ml-3">NFT TokenId</p>
+              <input
+                className="outline-0 placeholder-[#e9e9f3df] text-lg"
+                type="number"
+                placeholder="Enter Your NFT tokenID"
+                style={{
+                  paddingLeft: "12px",
+                  background: "#0C0F26",
+                  color: "#E9E9F3",
+                  height: "50px",
+                  width: "100%",
+                  borderRadius: "15px",
+                }}
+                value={proposalForm.tokenId}
+                onChange={(e) =>
+                  setProposalForm({ ...proposalForm, tokenId: e.target.value })
+                }
               />
             </div>
 
@@ -105,9 +169,16 @@ const DaoPage = () => {
                   width: "100%",
                   borderRadius: "15px",
                 }}
+                value={proposalForm.coinSelect}
+                onChange={(e) =>
+                  setProposalForm({
+                    ...proposalForm,
+                    coinSelect: e.target.value,
+                  })
+                }
               >
-                <option value={true}>ETHER</option>
-                <option value={false}>USDC</option>
+                <option value={"ETHER"}>ETHER</option>
+                <option value={"USDC"}>USDC</option>
               </select>
             </div>
             <div className="w-full flex flex-col gap-3">
@@ -124,10 +195,20 @@ const DaoPage = () => {
                   width: "100%",
                   borderRadius: "15px",
                 }}
+                value={proposalForm.description}
+                onChange={(e) =>
+                  setProposalForm({
+                    ...proposalForm,
+                    description: e.target.value,
+                  })
+                }
               />
             </div>
             <div className="text-right">
-              <button className="text-title-text w-[30%] h-14 text-3xl mx-auto bg-blue-btn rounded-3xl mt-2  cursor-pointer transition-all duration400 hover:bg-[#2d55f6] hover:font-semibold">
+              <button
+                className="text-title-text w-[30%] h-14 text-3xl mx-auto bg-blue-btn rounded-3xl mt-2  cursor-pointer transition-all duration400 hover:bg-[#2d55f6] hover:font-semibold"
+                onClick={() => submitProposal()}
+              >
                 SUBMIT
               </button>
             </div>
@@ -138,6 +219,7 @@ const DaoPage = () => {
             {dummyData.map((proposal, index) => (
               <ProposalCard
                 key={index}
+                proposalId={proposal.proposalId}
                 tokenId={proposal.tokenId}
                 title={proposal.title}
                 description={proposal.description}
