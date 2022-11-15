@@ -1,0 +1,278 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_memberCardFactory",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_dAOVaultFactory",
+        "type": "address"
+      },
+      { "internalType": "address", "name": "_daoFactory", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "DAOAddress",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "NFTAddress",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "poolAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "bankName",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "maxSupply",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "minStake",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "daoId",
+        "type": "uint256"
+      }
+    ],
+    "name": "SocialBankCreated",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "OWNER",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "bankOwnerAddress",
+    "outputs": [
+      {
+        "internalType": "contract MemberCard",
+        "name": "nftAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "contract DAOVault",
+        "name": "poolAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "contract DAO",
+        "name": "daoAddress",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "string", "name": "_name", "type": "string" },
+      { "internalType": "string", "name": "_initBaseURI", "type": "string" },
+      { "internalType": "address", "name": "_tokenAddress", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "_aTokenAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_aaveLendingPoolAddressesProvider",
+        "type": "address"
+      },
+      { "internalType": "address", "name": "_swap", "type": "address" },
+      { "internalType": "uint256", "name": "_maxSupply", "type": "uint256" },
+      { "internalType": "uint256", "name": "_minStake", "type": "uint256" }
+    ],
+    "name": "createDAO",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "dAOVaultFactory",
+    "outputs": [
+      {
+        "internalType": "contract DAOVaultFactory",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "daoCounter",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "daoFactory",
+    "outputs": [
+      { "internalType": "contract DAOFactory", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getDAOByAddress",
+    "outputs": [
+      { "internalType": "contract DAO", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "id", "type": "uint256" }],
+    "name": "getDAOById",
+    "outputs": [
+      { "internalType": "contract DAO", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getDAOsByAddress",
+    "outputs": [
+      { "internalType": "contract DAO", "name": "", "type": "address" },
+      { "internalType": "contract DAOVault", "name": "", "type": "address" },
+      { "internalType": "contract MemberCard", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "id", "type": "uint256" }],
+    "name": "getDAOsById",
+    "outputs": [
+      { "internalType": "contract DAO", "name": "", "type": "address" },
+      { "internalType": "contract DAOVault", "name": "", "type": "address" },
+      { "internalType": "contract MemberCard", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getNFTByAddress",
+    "outputs": [
+      { "internalType": "contract MemberCard", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "id", "type": "uint256" }],
+    "name": "getNFTById",
+    "outputs": [
+      { "internalType": "contract MemberCard", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getVaultByAddress",
+    "outputs": [
+      { "internalType": "contract DAOVault", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "id", "type": "uint256" }],
+    "name": "getVaultById",
+    "outputs": [
+      { "internalType": "contract DAOVault", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "memberCardFactory",
+    "outputs": [
+      {
+        "internalType": "contract MemberCardFactory",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "recordedAddress",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "socialBankId",
+    "outputs": [
+      {
+        "internalType": "contract MemberCard",
+        "name": "nftAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "contract DAOVault",
+        "name": "poolAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "contract DAO",
+        "name": "daoAddress",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

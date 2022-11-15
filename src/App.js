@@ -64,7 +64,7 @@ const App = () => {
               <Route path="/" element={<Mainpage />} />
               <Route path="/daopage" element={<DaoPage />} />
               <Route
-                path="/proposaldetail/:tokenId"
+                path="/proposaldetail/:tokenId/:proposalId"
                 element={<ProposalModal />}
               />
             </Routes>

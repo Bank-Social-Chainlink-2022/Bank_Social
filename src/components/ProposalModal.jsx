@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 
@@ -8,6 +8,9 @@ import { FaTimes } from "react-icons/fa";
 import { votedAddress, dummyData } from "../assets/dummy";
 import { shortenAddress } from "../utils/shortenAddress";
 import { DaoContext } from "../context/DaoContext";
+
+import { useBankSocialActivity } from "wagmi-banksocial";
+import { daoAddress, daoABI } from "../constants/constants";
 
 const filterYes = (address) => {
   let voteYes = [];
@@ -28,13 +31,6 @@ const filterNo = (address) => {
   });
   return voteNo;
 };
-// const yesPercent = Math.round(
-//   (filterYes(votedAddress).length / votedAddress.length) * 100
-// );
-
-// const noPercent = Math.round(
-//   (filterNo(votedAddress).length / votedAddress.length) * 100
-// );
 
 const VotedAccount = ({ address, result, transaction }) => {
   return (
@@ -47,17 +43,43 @@ const VotedAccount = ({ address, result, transaction }) => {
 };
 
 const ProposalModal = () => {
-  const { tokenNumber, setTokenNumber, pickedDao, setPickedDao } =
-    useContext(DaoContext);
+  const [pickedDao, setPickedDao] = useState([]);
 
-  const { tokenId } = useParams();
+  const { tokenNumber, setTokenNumber, vote, setVoteInfo } =
+    useContext(DaoContext);
+  const { tokenId, proposalId } = useParams();
+
+  const { activities } = useBankSocialActivity({
+    API_URL:
+      "https://polygon-mainnet.g.alchemy.com/v2/Xq_z95TxOAt6M8hij5bEQ09_Lk3gSt_r",
+    contractAddress: daoAddress,
+    contractABI: daoABI,
+    network: "polygon",
+  });
 
   useEffect(() => {
-    const filterData = dummyData.filter((dao) => dao.tokenId === +tokenId);
-    setPickedDao(filterData[0]);
-  }, [tokenId]);
+    const fileter = async () => {
+      const data = await activities;
+      const result = data.filter((dao) => +dao.data._tokenId === +tokenId);
+      setPickedDao(result[0].data);
+      return result;
+    };
+    fileter();
+  }, [activities]);
 
-  const yesVote = true;
+  console.log(activities);
+  console.log(pickedDao);
+  const yesVotes = false;
+
+  const yesVote = () => {
+    setVoteInfo({ vote: true, proposalId: proposalId, tokenId: tokenId });
+    vote();
+  };
+
+  const noVote = () => {
+    setVoteInfo({ vote: false, proposalId: proposalId, tokenId: tokenId });
+    vote();
+  };
 
   return (
     <div className="max-w-[1440px]  m-0 p-10 text-center mx-auto">
@@ -75,11 +97,11 @@ const ProposalModal = () => {
                 Active
               </div>
               <div className="text-title-text text-left text-3xl">
-                {pickedDao && pickedDao.title}
+                {pickedDao && pickedDao._ipfsHash}
               </div>
               <div className="h-[90%]">
                 <p className="text-sub-text text-xs text-left overflow-x-scroll">
-                  {pickedDao && pickedDao.description}
+                  {pickedDao ? pickedDao._ipfsHash : ""}
                 </p>
               </div>
 
@@ -129,24 +151,29 @@ const ProposalModal = () => {
                 </div>
               </div>
               <div className="flex flex-col gap-2 w-full">
-                <div className="border-2 border-color bg-[#21243A] py-2 rounded-lg cursor-pointer duration-200 transition-all hover:bg-[#78C28D] hover:text-black hover:border-transparent">
+                <div
+                  className="border-2 border-color bg-[#21243A] py-2 rounded-lg cursor-pointer duration-200 transition-all hover:bg-[#78C28D] hover:text-black hover:border-transparent"
+                  onClick={() => yesVote()}
+                >
                   Yes, I support the proposal
                 </div>
-                <div className="border-2 border-color w-full bg-[#21243A] py-2 rounded-lg cursor-pointer duration-200 transition-all hover:bg-[#c27878] hover:text-black hover:border-transparent">
+                <div
+                  className="border-2 border-color w-full bg-[#21243A] py-2 rounded-lg cursor-pointer duration-200 transition-all hover:bg-[#c27878] hover:text-black hover:border-transparent"
+                  onClick={() => noVote()}
+                >
                   No, I don't support the proposal
                 </div>
               </div>
 
-              {yesVote ? (
+              {yesVotes ? (
                 <div className="border-2 border-color bg-[#23313D] py-2 rounded-lg cursor-pointer flex justify-center gap-2 items-center">
                   <FcCheckmark />
                   <p>You've succesfully vote the proposal</p>
                 </div>
               ) : (
-                <div className="border-2 border-color bg-[#23313D] py-2 rounded-lg cursor-pointer flex justify-center gap-2 items-center">
+                <div className="border-2 border-color bg-red-300 py-2 rounded-lg cursor-pointer flex justify-center gap-2 items-center">
                   {" "}
-                  <FaTimes className="text-red-400" />
-                  <p>Please vote the proposal</p>
+                  <p className="text-black">Please vote the proposal</p>
                 </div>
               )}
             </div>
@@ -160,10 +187,12 @@ const ProposalModal = () => {
                   <div className="w-full bg-[#989FBA] rounded-full h-2">
                     <div
                       className={" bg-[#4549D6] h-2 rounded-full"}
-                      style={{ width: `${pickedDao.yesRate}%` }}
+                      // style={{ width: `${pickedDao.yesRate}%` }}
                     ></div>
                   </div>
-                  <p className="text-sub-text text-xs">{pickedDao.yesRate}%</p>
+                  <p className="text-sub-text text-xs">
+                    {/* {pickedDao.yesRate} */}%
+                  </p>
                 </div>
               </div>
               <div className="flex flex-col gap-3">
@@ -174,10 +203,12 @@ const ProposalModal = () => {
                   <div className="w-full bg-[#989FBA] rounded-full h-2">
                     <div
                       className={"bg-[#d65345] h-2 rounded-full"}
-                      style={{ width: `${pickedDao.noRate}%` }}
+                      // style={{ width: `${pickedDao.noRate}%` }}
                     ></div>
                   </div>
-                  <p className="text-sub-text text-xs">{pickedDao.noRate}%</p>
+                  <p className="text-sub-text text-xs">
+                    {/* {pickedDao.noRate} */}%
+                  </p>
                 </div>
               </div>
             </div>

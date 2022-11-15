@@ -2,23 +2,38 @@ import React, { useState, useContext } from "react";
 import { ProposalCard, ProposalModal } from "../components";
 import { dummyData } from "../assets/dummy";
 import { DaoContext } from "../context/DaoContext";
+import { useBankSocialActivity } from "wagmi-banksocial";
+import { daoAddress, daoABI } from "../constants/constants";
 
 const DaoPage = () => {
-  const [detail, setDetail] = useState(true);
   const {
     stake,
+    approve,
     unstake,
     propose,
     proposalForm,
     setProposalForm,
     stakeAmount,
     setStakeAmount,
+    usdcApprove,
+    setUsdcApprove,
+    unStakeAmount,
+    setUnStakeAmount,
   } = useContext(DaoContext);
   console.log(proposalForm);
 
   const submitProposal = () => {
     propose();
   };
+
+  const { activities } = useBankSocialActivity({
+    API_URL:
+      "https://polygon-mainnet.g.alchemy.com/v2/Xq_z95TxOAt6M8hij5bEQ09_Lk3gSt_r",
+    contractAddress: daoAddress,
+    contractABI: daoABI,
+    network: "polygon",
+  });
+
   return (
     <>
       <div className="container h-screen">
@@ -31,7 +46,38 @@ const DaoPage = () => {
             {/* card1 */}
             <div className="w-[360px] h-[380px] border-color border-4 bg-sub-bg rounded-xl flex flex-col py-6 px-2 gap-10 ">
               <div className="text-left flex flex-col gap-5 pl-6">
-                <p className="text-sub-text text-lg ">Staked</p>
+                <p className="text-sub-text text-lg ">USDC</p>
+                <p className=" text-title-text text-3xl">Get Approve</p>
+              </div>
+              <div className="border-color border-2 w-[100%] mx-auto" />
+              <div className="flex gap-4 pl-6 h-10 items-center ">
+                <p className="text-sub-text text-xl ">Amount:</p>
+                <input
+                  className="outline-0 placeholder-[#e9e9f3df]"
+                  type="text"
+                  placeholder="$Amount"
+                  value={usdcApprove}
+                  onChange={(e) => setUsdcApprove(e.target.value)}
+                  style={{
+                    paddingLeft: "12px",
+                    background: "#0C0F26",
+                    color: "#E9E9F3",
+                    height: "55px",
+                    borderRadius: "15px",
+                  }}
+                />
+              </div>
+              <button
+                className="text-title-text w-[90%] h-14 text-3xl  mx-auto bg-blue-btn rounded-3xl mt-1 cursor-pointer transition-all duration400 hover:bg-[#2d55f6] hover:font-semibold"
+                onClick={() => approve()}
+              >
+                APPROVE
+              </button>
+            </div>
+            {/* card 2 */}
+            <div className="w-[360px] h-[380px] border-color border-4 bg-sub-bg rounded-xl flex flex-col py-6 px-2 gap-10 ">
+              <div className="text-left flex flex-col gap-5 pl-6">
+                <p className="text-sub-text text-lg ">Total Staked</p>
                 <p className=" text-title-text text-3xl">$1234.00</p>
               </div>
               <div className="border-color border-2 w-[100%] mx-auto" />
@@ -59,8 +105,7 @@ const DaoPage = () => {
                 STAKING
               </button>
             </div>
-            {/* card 2 */}
-            <div className="w-[360px] h-[380px] border-color border-4 bg-sub-bg rounded-xl flex flex-col py-6 px-2 gap-10 ">
+            {/* <div className="w-[360px] h-[380px] border-color border-4 bg-sub-bg rounded-xl flex flex-col py-6 px-2 gap-10 ">
               <div className="text-left flex flex-col gap-5 pl-6">
                 <p className="text-sub-text text-lg">Total Minted NFT</p>
                 <p className=" text-title-text text-3xl">8962</p>
@@ -75,9 +120,9 @@ const DaoPage = () => {
                   OWNED
                 </p>
               </div>
-            </div>
+            </div> */}
             {/* card 3 */}
-            <div className="w-[360px] h-[380px] border-color border-4 bg-sub-bg rounded-xl flex flex-col py-6 px-2 gap-10 ">
+            {/* <div className="w-[360px] h-[380px] border-color border-4 bg-sub-bg rounded-xl flex flex-col py-6 px-2 gap-10 ">
               <div className="text-left flex flex-col gap-5 pl-6">
                 <p className="text-sub-text text-lg">Total Staked Amount</p>
                 <p className=" text-title-text text-3xl">$12345.00</p>
@@ -91,6 +136,36 @@ const DaoPage = () => {
                   17
                 </p>
               </div>
+            </div> */}
+            <div className="w-[360px] h-[380px] border-color border-4 bg-sub-bg rounded-xl flex flex-col py-6 px-2 gap-10 ">
+              <div className="text-left flex flex-col gap-5 pl-6">
+                <p className="text-sub-text text-lg ">Staked</p>
+                <p className=" text-title-text text-3xl">$1234.00</p>
+              </div>
+              <div className="border-color border-2 w-[100%] mx-auto" />
+              <div className="flex gap-4 pl-6 h-10 items-center ">
+                <p className="text-sub-text text-xl ">Amount:</p>
+                <input
+                  className="outline-0 placeholder-[#e9e9f3df]"
+                  type="number"
+                  placeholder="$Amount"
+                  value={unStakeAmount}
+                  onChange={(e) => setUnStakeAmount(e.target.value)}
+                  style={{
+                    paddingLeft: "12px",
+                    background: "#0C0F26",
+                    color: "#E9E9F3",
+                    height: "55px",
+                    borderRadius: "15px",
+                  }}
+                />
+              </div>
+              <button
+                className="text-title-text w-[90%] h-14 text-3xl  mx-auto bg-blue-btn rounded-3xl mt-1 cursor-pointer transition-all duration400 hover:bg-[#2d55f6] hover:font-semibold"
+                onClick={() => unstake()}
+              >
+                UNSTAKING
+              </button>
             </div>
           </div>
           {/* Section 2 */}
@@ -152,7 +227,10 @@ const DaoPage = () => {
                 }}
                 value={proposalForm.tokenId}
                 onChange={(e) =>
-                  setProposalForm({ ...proposalForm, tokenId: e.target.value })
+                  setProposalForm({
+                    ...proposalForm,
+                    tokenId: e.target.value,
+                  })
                 }
               />
             </div>
@@ -216,15 +294,15 @@ const DaoPage = () => {
           {/* Section 3 */}
 
           <div className="w-full grid grid-cols-2 gap-7 ">
-            {dummyData.map((proposal, index) => (
+            {activities.map((proposal, index) => (
               <ProposalCard
                 key={index}
-                proposalId={proposal.proposalId}
-                tokenId={proposal.tokenId}
-                title={proposal.title}
-                description={proposal.description}
-                yesRate={proposal.yesRate}
-                noRate={proposal.noRate}
+                proposalId={proposal.data._tokenId}
+                tokenId={+proposal.data._tokenId}
+                title={proposal.data._ipfsHash}
+                description={proposal.data._ipfsHash}
+                // yesRate={proposal.data.yesRate}
+                // noRate={proposal.data.noRate}
               />
             ))}
           </div>

@@ -16,7 +16,6 @@ const ProposalCard = ({
     pickedDao,
     setPickedDao,
     vote,
-    voteInfo,
     setVoteInfo,
   } = useContext(DaoContext);
 
@@ -24,7 +23,7 @@ const ProposalCard = ({
     setVoteInfo({ vote: true, proposalId: proposalId, tokenId: tokenId });
     vote();
   };
-  console.log(voteInfo);
+
   const noVote = () => {
     setVoteInfo({ vote: false, proposalId: proposalId, tokenId: tokenId });
     vote();
@@ -40,7 +39,7 @@ const ProposalCard = ({
         <div className="flex flex-col w-full gap-5">
           <button
             className="h-14  border-[3.5px] border-color rounded-3xl hover:bg-title-text hover:text-[#0C0F26] hover:font-semibold hover:border-transparent duration-300 transition-all"
-            onClick={() => vote()}
+            onClick={() => yesVote()}
           >
             YES
           </button>
@@ -56,7 +55,7 @@ const ProposalCard = ({
           <p>{noRate}%</p>
         </div>
       </div>
-      <Link to={`/proposaldetail/${tokenId}`}>
+      <Link to={`/proposaldetail/${tokenId}/${proposalId}`}>
         <button className="text-title-text w-[90%] h-16 text-3xl mx-auto bg-blue-btn rounded-3xl mt-2 cursor-pointer transition-all duration400 hover:bg-[#2d55f6] hover:font-semibold">
           DETAILS
         </button>

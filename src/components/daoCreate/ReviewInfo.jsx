@@ -5,7 +5,7 @@ const ReviewInfo = () => {
   const { createDaoForm } = useContext(DaoContext);
 
   return (
-    <div className="text-white block mt-6 font-lg mb-14">
+    <div className="text-white block mt-6 font-lg mb-10">
       <p className="mt-3 font-semibold">DAO Name : {createDaoForm.DaoName}</p>
       <p className="mt-3 font-semibold">
         Description : {createDaoForm.DaoDesc}

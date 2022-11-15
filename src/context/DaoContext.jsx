@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
-import { memberCardTestAddress, memberCardTestAddressABI } from "./utils";
+
 import {
   aaveATokenAddress,
   daoAddress,
@@ -31,7 +31,8 @@ export const DaoContext = createContext();
 
 export const DaoContextProvider = ({ children }) => {
   const [tokenNumber, setTokenNumber] = useState("");
-  const [pickedDao, setPickedDao] = useState([]);
+  // const [pickedDao, setPickedDao] = useState([]);
+  const [currentAccount, setCurrentAccount] = useState("");
   //Open the Modalbox
   const [openModalBox, setOpenModalBox] = useState(false);
 
@@ -55,9 +56,10 @@ export const DaoContextProvider = ({ children }) => {
     tokenId: "",
   });
 
-  console.log(proposalForm);
   // Stake amount
   const [stakeAmount, setStakeAmount] = useState(1);
+  const [usdcApprove, setUsdcApprove] = useState(10);
+  const [unStakeAmount, setUnStakeAmount] = useState(0);
 
   const [voteInfo, setVoteInfo] = useState({
     vote: true,
@@ -77,19 +79,20 @@ export const DaoContextProvider = ({ children }) => {
   useEffect(() => {
     if (isConnected === true) {
       setOpenModalBox(true);
+      setCurrentAccount(address);
     }
   }, [isConnected]);
 
   ///////////////////// From Smart contract///////////////////
 
   // get cativity
-  const { activities } = useBankSocialActivity({
-    API_URL:
-      "https://polygon-mainnet.g.alchemy.com/v2/Xq_z95TxOAt6M8hij5bEQ09_Lk3gSt_r",
-    contractAddress: memberCardAddress,
-    contractABI: memberCardABI,
-    network: "polygon", // 'goerli' <--
-  });
+  // const { activities } = useBankSocialActivity({
+  //   API_URL:
+  //     "https://polygon-mainnet.g.alchemy.com/v2/Xq_z95TxOAt6M8hij5bEQ09_Lk3gSt_r",
+  //   contractAddress: memberCardAddress,
+  //   contractABI: memberCardABI,
+  //   network: "polygon",
+  // });
 
   const { write: _createDAO } = useCreateDAO({
     initBaseURI: "test",
@@ -97,20 +100,16 @@ export const DaoContextProvider = ({ children }) => {
     minStake: 1,
     name: "test",
     socialBankAddress: socialBankAddress,
-    // usdcAddress: usdcAddress,
-    // aaveAToken: aaveATokenAddress,
-    // poolAddress: poolAddress,
-    // swapAddress: swapAddress,
+    usdcAddress: usdcAddress,
+    aaveAToken: aaveATokenAddress,
+    poolAddress: poolAddress,
+    swapAddress: swapAddress,
   });
-
-  console.log(socialBankAddress);
-  console.log(memberCardAddress);
-  console.log(daoVaultAddress);
 
   /** Start with DAO Vault */
   const { write: _approveUSDC } = useUSDCApprove({
     spender: daoVaultAddress,
-    amount: 10,
+    amount: usdcApprove,
     usdcAddress: usdcAddress,
   });
   const { write: _stake } = useStake({ amount: stakeAmount });
@@ -124,10 +123,12 @@ export const DaoContextProvider = ({ children }) => {
     // amount: 10, REMOVED
     isToken: proposalForm.coinSelect === "ETHER" ? true : false,
     description: proposalForm.description,
-    receiver: address ? address : proposalForm.receiver,
-    tokenId: proposalForm.tokenId === "" ? 0 : proposalForm.tokenId, // Change tokenId to yours
+    receiver:
+      proposalForm.receiver === "" ? currentAccount : proposalForm.receiver,
+    tokenId: 1, // Change tokenId to yours
     daoAddress: daoAddress,
   });
+
   const { write: _vote } = useVote({
     vote: voteInfo.vote,
     proposalId: voteInfo.proposalId,
@@ -142,7 +143,7 @@ export const DaoContextProvider = ({ children }) => {
 
   /** Read Contract */
   const { data: daoIds } = useDaosById({ daoId: 1 });
-  console.log("🚀 ~ file: index.tsx ~ line 57 ~ Page ~ daoIds", daoIds);
+  // console.log("🚀 ~ file: index.tsx ~ line 57 ~ Page ~ daoIds", daoIds);
 
   const contractCreateDAO = () => {
     _createDAO && _createDAO();
@@ -175,14 +176,6 @@ export const DaoContextProvider = ({ children }) => {
     _vote && _vote();
   };
 
-  // const performUpkeep = () => {
-  //   _performUpkeep && _performUpkeep();
-  // };
-
-  // const passTime = () => {
-  //   _passTime && _passTime();
-  // };
-
   return (
     <DaoContext.Provider
       value={{
@@ -190,8 +183,8 @@ export const DaoContextProvider = ({ children }) => {
         setTokenNumber,
         openModalBox,
         setOpenModalBox,
-        pickedDao,
-        setPickedDao,
+        // pickedDao,
+        // setPickedDao,
         address,
         connect,
         disconnect,
@@ -206,6 +199,11 @@ export const DaoContextProvider = ({ children }) => {
         setProposalForm,
         stakeAmount,
         setStakeAmount,
+        unStakeAmount,
+        setUnStakeAmount,
+        usdcApprove,
+        setUsdcApprove,
+
         voteInfo,
         setVoteInfo,
 

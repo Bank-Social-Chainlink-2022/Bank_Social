@@ -15,7 +15,7 @@ const CreateOrJoin = () => {
   };
   return (
     <div>
-      <h2 className="text-start font-Roboto font-medium text-3xl ml-4 text-white mt-20">
+      <h2 className="text-start font-Roboto font-medium text-3xl ml-4 text-white mt-16">
         What do you wanna do?
       </h2>
       <div className="grid gap-x-10 w-2/3 mx-auto mt-20 grid-flow-col">

@@ -62,7 +62,7 @@ function ModalBox(props) {
       >
         <h2
           ref={(_subtitle) => (subtitle = _subtitle)}
-          className="text-center font-Bangers font-semibold text-3xl mt-5"
+          className="text-center font-Roboto font-semibold text-3xl mt-5"
         >
           Let's Get You Started &nbsp; 💜
         </h2>
@@ -72,19 +72,21 @@ function ModalBox(props) {
         {createDaoOpen && !joinDaoOpen ? <Form /> : <></>}
         {!createDaoOpen && joinDaoOpen ? <DaoList /> : <></>}
 
-        <div className="mt-3 ml-6 absolute left-0 top-0 w-[90%]">
+        <div className="mt-3 absolute left-0 top-0 ml-5">
           <button
             onClick={closeModal}
             className="text-white bg-red-500 rounded-md hover:bg-red-700 h-7 w-16 float-right"
           >
             Close
           </button>
+        </div>
+        <div className="mt-3 absolute right-4 top-0 ml-5">
           <button
             onClick={goBack}
-            className="text-white hover:bg-gray-400 h-7 w-16 float-right"
+            className="text-white hover:bg-gray-400 h-7 w-16 float-right rounded-md"
           >
             Back
-          </button>
+          </button>{" "}
         </div>
       </Modal>
     </div>

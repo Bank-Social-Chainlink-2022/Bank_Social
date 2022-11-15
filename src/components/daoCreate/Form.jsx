@@ -75,13 +75,16 @@ const Form = () => {
               }
             }}
           >
-            {page === FormTitles.length - 1 ? "Launch Dao 🚀" : "Next"}
-          </button>
-          <button
-            className="rounded-md bg-blue-500 py-2 px-7 text-white font-Roboto font-semibold"
-            onClick={() => contractCreateDAO()}
-          >
-            Create Dao
+            {page === FormTitles.length - 1 ? (
+              <button
+                className="rounded-md bg-blue-500 py-2 px-7 text-white font-Roboto font-semibold mr-3"
+                onClick={() => contractCreateDAO()}
+              >
+                Launch Dao 🚀
+              </button>
+            ) : (
+              "Next"
+            )}
           </button>
         </div>
       </div>
