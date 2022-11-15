@@ -6,8 +6,7 @@ import { DaoContext } from "../context/DaoContext";
 import { shortenAddress } from "../utils/shortenAddress";
 
 const Navbar = () => {
-  const { address, connect, disconnect, setOpenModalBox, setCreateDao } =
-    useContext(DaoContext);
+  const { address, connect, disconnect, setCreateDao } = useContext(DaoContext);
   const connectWallet = () => {
     connect();
   };

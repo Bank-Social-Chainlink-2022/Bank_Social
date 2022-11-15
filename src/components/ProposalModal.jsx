@@ -1,36 +1,14 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
-
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { FcCheckmark } from "react-icons/fc";
-import { FaTimes } from "react-icons/fa";
 import { votedAddress, dummyData } from "../assets/dummy";
 import { shortenAddress } from "../utils/shortenAddress";
 import { DaoContext } from "../context/DaoContext";
 
 import { useBankSocialActivity } from "wagmi-banksocial";
 import { daoAddress, daoABI } from "../constants/constants";
-
-const filterYes = (address) => {
-  let voteYes = [];
-  address.forEach((addr) => {
-    if (addr.voteResult === "YES") {
-      voteYes.push(addr);
-    }
-  });
-  return voteYes;
-};
-
-const filterNo = (address) => {
-  let voteNo = [];
-  address.forEach((addr) => {
-    if (addr.voteResult === "NO") {
-      voteNo.push(addr);
-    }
-  });
-  return voteNo;
-};
 
 const VotedAccount = ({ address, result, transaction }) => {
   return (
@@ -44,9 +22,10 @@ const VotedAccount = ({ address, result, transaction }) => {
 
 const ProposalModal = () => {
   const [pickedDao, setPickedDao] = useState([]);
-
-  const { tokenNumber, setTokenNumber, vote, setVoteInfo } =
-    useContext(DaoContext);
+  const [totalVotes, setTotalVotes] = useState([]);
+  const [totalYesVotes, setTotalYesVotes] = useState([]);
+  const [totalNoVotes, setTotalNoVotes] = useState([]);
+  const { vote, setVoteInfo, daoIdNumber } = useContext(DaoContext);
   const { tokenId, proposalId } = useParams();
 
   const { activities } = useBankSocialActivity({
@@ -60,16 +39,28 @@ const ProposalModal = () => {
   useEffect(() => {
     const fileter = async () => {
       const data = await activities;
-      const result = data.filter((dao) => +dao.data._tokenId === +tokenId);
-      setPickedDao(result[0].data);
-      return result;
+      const proposalResult = data.filter(
+        (dao) => +dao.data._id === +proposalId
+      );
+
+      const voteResult = data.filter(
+        (dao) => dao.eventName == "ProposalElected"
+      );
+      const voteYes = data.filter(
+        (dao) =>
+          dao.eventName === "ProposalElected" && dao.data._passed === true
+      );
+      const voteNo = data.filter(
+        (dao) =>
+          dao.eventName === "ProposalElected" && dao.data._passed === false
+      );
+      setPickedDao(proposalResult[0].data);
+      setTotalVotes(voteResult);
+      setTotalYesVotes(voteYes);
+      setTotalNoVotes(voteNo);
     };
     fileter();
   }, [activities]);
-
-  console.log(activities);
-  console.log(pickedDao);
-  const yesVotes = false;
 
   const yesVote = () => {
     setVoteInfo({ vote: true, proposalId: proposalId, tokenId: tokenId });
@@ -81,11 +72,18 @@ const ProposalModal = () => {
     vote();
   };
 
+  const yesRate = Math.round(
+    Number(totalYesVotes.length / totalVotes.length) * 100
+  );
+  const noRate = Math.round(
+    Number(totalNoVotes.length / totalVotes.length) * 100
+  );
+
   return (
     <div className="max-w-[1440px]  m-0 p-10 text-center mx-auto">
       <div className="w-[750px] h-[1300px] bg-main-bg pt-2 pb-8 border-4 mx-auto border-color rounded-2xl flex flex-col ">
         <div className="self-end pr-6 pb-2">
-          <Link to={"/daopage"}>
+          <Link to={`/daopage/${daoIdNumber}`}>
             <AiOutlineCloseCircle className="text-sub-text text-4xl cursor-pointer transition-all duration300 hover:text-title-text" />
           </Link>
         </div>
@@ -111,16 +109,18 @@ const ProposalModal = () => {
             </div>
             <div className="w-full h-[48%] bg-sub-bg border-4 border-color rounded-xl text-sub-text text-left py-5">
               <div className="w-full pb-2 pl-3 border-b-2 text-md border-color">
-                <p>Votes ({votedAddress.length})</p>
+                <p>Votes ({totalVotes.length})</p>
               </div>
               <div className="h-[97%] w-full overflow-x-auto">
-                {votedAddress ? (
-                  votedAddress.map((account, index) => (
+                {totalVotes ? (
+                  totalVotes.map((account, index) => (
                     <VotedAccount
                       key={index}
-                      address={account.address}
-                      result={account.voteResult}
-                      transaction={account.transaction}
+                      address={account.data._proposer}
+                      result={account.data._passed === true ? "YES" : "NO"}
+                      transaction={
+                        account.eventName === "ProposalElected" ? "Confirm" : ""
+                      }
                     />
                   ))
                 ) : (
@@ -131,7 +131,7 @@ const ProposalModal = () => {
           </div>
           {/* vertical section 2 */}
           <div className=" h-1/2 w-1/2 flex flex-col gap-4">
-            <div className="w-full h-[60%] bg-sub-bg border-4 border-color rounded-xl text-xs text-sub-text flex flex-col gap-4 p-5">
+            <div className="w-full h-[60%] bg-sub-bg border-4 border-color rounded-xl text-xs text-sub-text flex flex-col gap-7 p-5">
               <h1 className="text-title-text text-left text-lg">
                 Cast your vote
               </h1>
@@ -165,7 +165,7 @@ const ProposalModal = () => {
                 </div>
               </div>
 
-              {yesVotes ? (
+              {/* {yesVotes ? (
                 <div className="border-2 border-color bg-[#23313D] py-2 rounded-lg cursor-pointer flex justify-center gap-2 items-center">
                   <FcCheckmark />
                   <p>You've succesfully vote the proposal</p>
@@ -175,40 +175,32 @@ const ProposalModal = () => {
                   {" "}
                   <p className="text-black">Please vote the proposal</p>
                 </div>
-              )}
+              )} */}
             </div>
             <div className="w-full h-[40%] bg-sub-bg border-4 border-color rounded-xl mb-7 flex flex-col text-left p-5 gap-6">
               <h1 className="text-title-text text-lg">Current result</h1>
               <div className="flex flex-col gap-3">
-                <p className="text-sub-text text-sm">{`Yes, I support: ${
-                  filterYes(votedAddress).length
-                }`}</p>
+                <p className="text-sub-text text-sm">{`Yes, I support: ${totalYesVotes.length}`}</p>
                 <div className="flex justify-center items-center gap-2 rounded-lg border-transparent border-0 ">
                   <div className="w-full bg-[#989FBA] rounded-full h-2">
                     <div
                       className={" bg-[#4549D6] h-2 rounded-full"}
-                      // style={{ width: `${pickedDao.yesRate}%` }}
+                      style={{ width: `${yesRate}%` }}
                     ></div>
                   </div>
-                  <p className="text-sub-text text-xs">
-                    {/* {pickedDao.yesRate} */}%
-                  </p>
+                  <p className="text-sub-text text-xs">{yesRate}%</p>
                 </div>
               </div>
               <div className="flex flex-col gap-3">
-                <p className="text-sub-text text-sm">{`No, I don't support:  ${
-                  filterNo(votedAddress).length
-                }`}</p>
+                <p className="text-sub-text text-sm">{`No, I don't support:  ${totalNoVotes.length}`}</p>
                 <div className="flex justify-center items-center gap-2 rounded-lg border-transparent border-0 ">
                   <div className="w-full bg-[#989FBA] rounded-full h-2">
                     <div
                       className={"bg-[#d65345] h-2 rounded-full"}
-                      // style={{ width: `${pickedDao.noRate}%` }}
+                      style={{ width: `${noRate}%` }}
                     ></div>
                   </div>
-                  <p className="text-sub-text text-xs">
-                    {/* {pickedDao.noRate} */}%
-                  </p>
+                  <p className="text-sub-text text-xs">{noRate}%</p>
                 </div>
               </div>
             </div>

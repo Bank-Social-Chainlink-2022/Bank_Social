@@ -10,14 +10,7 @@ const ProposalCard = ({
   yesRate,
   noRate,
 }) => {
-  const {
-    tokenNumber,
-    setTokenNumber,
-    pickedDao,
-    setPickedDao,
-    vote,
-    setVoteInfo,
-  } = useContext(DaoContext);
+  const { vote, setVoteInfo } = useContext(DaoContext);
 
   const yesVote = () => {
     setVoteInfo({ vote: true, proposalId: proposalId, tokenId: tokenId });

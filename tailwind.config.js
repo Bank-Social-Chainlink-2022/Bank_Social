@@ -13,6 +13,7 @@ module.exports = {
       fontFamily: {
         Roboto: ["Roboto", "sans-serif"],
         Bangers: ["Bangers", "cursive"],
+        Monoton: ["Monoton", "cursive"],
       },
       backgroundColor: {
         "main-bg": "#0C0F26",

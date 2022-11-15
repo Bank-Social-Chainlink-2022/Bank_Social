@@ -62,7 +62,7 @@ const App = () => {
             <Navbar />
             <Routes>
               <Route path="/" element={<Mainpage />} />
-              <Route path="/daopage" element={<DaoPage />} />
+              <Route path="/daopage/:daoId" element={<DaoPage />} />
               <Route
                 path="/proposaldetail/:tokenId/:proposalId"
                 element={<ProposalModal />}

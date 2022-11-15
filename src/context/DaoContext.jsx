@@ -24,28 +24,29 @@ import {
   useVote,
   useConnect,
   useDisconnect,
+  useUploadIPFS,
 } from "wagmi-banksocial";
 import { InjectedConnector } from "wagmi-banksocial/connectors/injected";
 
 export const DaoContext = createContext();
 
 export const DaoContextProvider = ({ children }) => {
-  const [tokenNumber, setTokenNumber] = useState("");
-  // const [pickedDao, setPickedDao] = useState([]);
+  const [createdDaoList, setCreatedDaoList] = useState([]);
   const [currentAccount, setCurrentAccount] = useState("");
+  const [daoIdNumber, setDaoIdNumber] = useState();
   //Open the Modalbox
   const [openModalBox, setOpenModalBox] = useState(false);
 
   const [createDaoOpen, setCreateDaoOpen] = useState(false);
   const [joinDaoOpen, setJoinDaoOpen] = useState(false);
-
   //Create Dao Form
   const [createDaoForm, setCreateDaoForm] = useState({
     DaoName: "",
     DaoDesc: "",
-    Logo: "",
-    Header: "",
-    DiscordLink: "",
+    image: File,
+    ipfsURI: "",
+    NFTNumber: 10,
+    StakingAmount: 1,
   });
   //Dao Proposal Form
   const [proposalForm, setProposalForm] = useState({
@@ -53,13 +54,13 @@ export const DaoContextProvider = ({ children }) => {
     receiver: "",
     coinSelect: "ETHER",
     description: "",
-    tokenId: "",
+    tokenId: 0,
   });
 
   // Stake amount
   const [stakeAmount, setStakeAmount] = useState(1);
   const [usdcApprove, setUsdcApprove] = useState(10);
-  const [unStakeAmount, setUnStakeAmount] = useState(0);
+  const [unStakeId, setUnStakeId] = useState(0);
 
   const [voteInfo, setVoteInfo] = useState({
     vote: true,
@@ -67,8 +68,17 @@ export const DaoContextProvider = ({ children }) => {
     tokenId: 0,
   });
 
-  const [activity, setActivity] = useState();
-
+  const clearCreatDaoForm = () => {
+    setCreateDaoForm({
+      DaoName: "",
+      DaoDesc: "",
+      image: File,
+      ipfsURI: "",
+      NFTNumber: 10,
+      StakingAmount: 1,
+    });
+  };
+  console.log(createDaoForm);
   ///////////////////// Wallet Connection and Disconnection///////////////////
   const { connect } = useConnect({
     connector: new InjectedConnector(),
@@ -83,22 +93,38 @@ export const DaoContextProvider = ({ children }) => {
     }
   }, [isConnected]);
 
+  ///////////////////// IPFS contract///////////////////
+  const { uploadAndGetMetadata } = useUploadIPFS({ network: "polygon" });
+
+  useEffect(() => {
+    const getMetadataUri = async () => {
+      if (
+        createDaoForm.DaoName &&
+        createDaoForm.image &&
+        createDaoForm.DaoDesc
+      ) {
+        const metadata = {
+          name: createDaoForm.DaoName,
+          description: createDaoForm.DaoDesc,
+          image: createDaoForm.image,
+        };
+
+        const uri = await uploadAndGetMetadata(metadata);
+        console.log(uri);
+        setCreateDaoForm({ ...createDaoForm, ipfsURI: uri });
+        return uri;
+      }
+    };
+    getMetadataUri();
+  }, [createDaoForm.image]);
+
   ///////////////////// From Smart contract///////////////////
 
-  // get cativity
-  // const { activities } = useBankSocialActivity({
-  //   API_URL:
-  //     "https://polygon-mainnet.g.alchemy.com/v2/Xq_z95TxOAt6M8hij5bEQ09_Lk3gSt_r",
-  //   contractAddress: memberCardAddress,
-  //   contractABI: memberCardABI,
-  //   network: "polygon",
-  // });
-
   const { write: _createDAO } = useCreateDAO({
-    initBaseURI: "test",
-    maxSupply: 10,
-    minStake: 1,
-    name: "test",
+    initBaseURI: createDaoForm.ipfsURI,
+    maxSupply: +createDaoForm.NFTNumber,
+    minStake: +createDaoForm.StakingAmount,
+    name: createDaoForm.DaoName,
     socialBankAddress: socialBankAddress,
     usdcAddress: usdcAddress,
     aaveAToken: aaveATokenAddress,
@@ -115,7 +141,7 @@ export const DaoContextProvider = ({ children }) => {
   const { write: _stake } = useStake({ amount: stakeAmount });
 
   // TODO get owner all NFTs ID.
-  const { write: _unstake } = useUnstake({ tokenId: 1 }); // Change tokenId to yours
+  const { write: _unstake } = useUnstake({ tokenId: unStakeId }); // Change tokenId to yours
   // const _harvest = useHarvest()
 
   /** The DAO */
@@ -125,7 +151,12 @@ export const DaoContextProvider = ({ children }) => {
     description: proposalForm.description,
     receiver:
       proposalForm.receiver === "" ? currentAccount : proposalForm.receiver,
-    tokenId: 1, // Change tokenId to yours
+    tokenId:
+      proposalForm.tokenId === "" ||
+      proposalForm.tokenId === null ||
+      proposalForm.tokenId === undefined
+        ? 0
+        : +proposalForm.tokenId, // Change tokenId to yours
     daoAddress: daoAddress,
   });
 
@@ -179,12 +210,13 @@ export const DaoContextProvider = ({ children }) => {
   return (
     <DaoContext.Provider
       value={{
-        tokenNumber,
-        setTokenNumber,
         openModalBox,
         setOpenModalBox,
-        // pickedDao,
-        // setPickedDao,
+        createdDaoList,
+        setCreatedDaoList,
+
+        daoIdNumber,
+        setDaoIdNumber,
         address,
         connect,
         disconnect,
@@ -199,14 +231,15 @@ export const DaoContextProvider = ({ children }) => {
         setProposalForm,
         stakeAmount,
         setStakeAmount,
-        unStakeAmount,
-        setUnStakeAmount,
+        unStakeId,
+        setUnStakeId,
         usdcApprove,
         setUsdcApprove,
 
         voteInfo,
         setVoteInfo,
 
+        clearCreatDaoForm,
         // Smart contract Functions
         contractCreateDAO,
         approve,

@@ -1,11 +1,17 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { ProposalCard, ProposalModal } from "../components";
-import { dummyData } from "../assets/dummy";
 import { DaoContext } from "../context/DaoContext";
 import { useBankSocialActivity } from "wagmi-banksocial";
 import { daoAddress, daoABI } from "../constants/constants";
 
 const DaoPage = () => {
+  const [proposals, setProposals] = useState([]);
+  const [pickCreateDao, setPickCreateDao] = useState();
+  const [totalVotes, setTotalVotes] = useState([]);
+  const [totalYesVotes, setTotalYesVotes] = useState([]);
+  const [totalNoVotes, setTotalNoVotes] = useState([]);
+
   const {
     stake,
     approve,
@@ -17,10 +23,13 @@ const DaoPage = () => {
     setStakeAmount,
     usdcApprove,
     setUsdcApprove,
-    unStakeAmount,
-    setUnStakeAmount,
+    unStakeId,
+    setUnStakeId,
+    createdDaoList,
+    setDaoIdNumber,
   } = useContext(DaoContext);
-  console.log(proposalForm);
+  const { daoId } = useParams();
+  setDaoIdNumber(daoId);
 
   const submitProposal = () => {
     propose();
@@ -34,12 +43,55 @@ const DaoPage = () => {
     network: "polygon",
   });
 
+  useEffect(() => {
+    const fileter = async () => {
+      const data = await activities;
+      const proposalResult = data.filter(
+        (dao) => dao.eventName === "ProposalCreated"
+      );
+      const voteResult = data.filter(
+        (dao) => dao.eventName == "ProposalElected"
+      );
+      const voteYes = data.filter(
+        (dao) =>
+          dao.eventName === "ProposalElected" && dao.data._passed === true
+      );
+      const voteNo = data.filter(
+        (dao) =>
+          dao.eventName === "ProposalElected" && dao.data._passed === false
+      );
+
+      setProposals(proposalResult);
+      setTotalVotes(voteResult);
+      setTotalYesVotes(voteYes);
+      setTotalNoVotes(voteNo);
+    };
+
+    fileter();
+  }, [activities]);
+
+  useEffect(() => {
+    const fileter = async () => {
+      const data = await createdDaoList;
+      const result = data.filter((dao) => +dao.data.daoId == daoId);
+      setPickCreateDao(result[0]);
+    };
+    fileter();
+  }, [createdDaoList]);
+
+  const yesRate = Math.round(
+    Number(totalYesVotes.length / totalVotes.length) * 100
+  );
+  const noRate = Math.round(
+    Number(totalNoVotes.length / totalVotes.length) * 100
+  );
+
   return (
     <>
       <div className="container h-screen">
         <div className="flex flex-col gap-20 bg-main-bg px-28 relative">
           <h1 className="text-title-text  mt-[100px] text-4xl">
-            Dao-A: Office Evironment
+            DAO - {pickCreateDao ? pickCreateDao.data.bankName : ""}
           </h1>
           {/* Sction 1 */}
           <div className="flex flex-wrap mt-[100px] justify-between ">
@@ -77,8 +129,10 @@ const DaoPage = () => {
             {/* card 2 */}
             <div className="w-[360px] h-[380px] border-color border-4 bg-sub-bg rounded-xl flex flex-col py-6 px-2 gap-10 ">
               <div className="text-left flex flex-col gap-5 pl-6">
-                <p className="text-sub-text text-lg ">Total Staked</p>
-                <p className=" text-title-text text-3xl">$1234.00</p>
+                <p className="text-sub-text text-lg ">Minimum Staking</p>
+                <p className=" text-title-text text-3xl">
+                  {pickCreateDao ? +pickCreateDao.data.minStake : ""}
+                </p>
               </div>
               <div className="border-color border-2 w-[100%] mx-auto" />
               <div className="flex gap-4 pl-6 h-10 items-center ">
@@ -139,18 +193,20 @@ const DaoPage = () => {
             </div> */}
             <div className="w-[360px] h-[380px] border-color border-4 bg-sub-bg rounded-xl flex flex-col py-6 px-2 gap-10 ">
               <div className="text-left flex flex-col gap-5 pl-6">
-                <p className="text-sub-text text-lg ">Staked</p>
-                <p className=" text-title-text text-3xl">$1234.00</p>
+                <p className="text-sub-text text-lg ">Max Supply</p>
+                <p className=" text-title-text text-3xl">
+                  {pickCreateDao ? +pickCreateDao.data.maxSupply : ""}
+                </p>
               </div>
               <div className="border-color border-2 w-[100%] mx-auto" />
               <div className="flex gap-4 pl-6 h-10 items-center ">
-                <p className="text-sub-text text-xl ">Amount:</p>
+                <p className="text-sub-text text-xl ">Token Id:</p>
                 <input
                   className="outline-0 placeholder-[#e9e9f3df]"
                   type="number"
-                  placeholder="$Amount"
-                  value={unStakeAmount}
-                  onChange={(e) => setUnStakeAmount(e.target.value)}
+                  placeholder="Token Id"
+                  value={unStakeId}
+                  onChange={(e) => setUnStakeId(e.target.value)}
                   style={{
                     paddingLeft: "12px",
                     background: "#0C0F26",
@@ -215,7 +271,7 @@ const DaoPage = () => {
               <p className="text-sub-text text-md ml-3">NFT TokenId</p>
               <input
                 className="outline-0 placeholder-[#e9e9f3df] text-lg"
-                type="number"
+                type="text"
                 placeholder="Enter Your NFT tokenID"
                 style={{
                   paddingLeft: "12px",
@@ -232,6 +288,11 @@ const DaoPage = () => {
                     tokenId: e.target.value,
                   })
                 }
+                onKeyPress={(event) => {
+                  if (!/[0-9]/.test(event.key)) {
+                    event.preventDefault();
+                  }
+                }}
               />
             </div>
 
@@ -294,15 +355,15 @@ const DaoPage = () => {
           {/* Section 3 */}
 
           <div className="w-full grid grid-cols-2 gap-7 ">
-            {activities.map((proposal, index) => (
+            {proposals.map((proposal, index) => (
               <ProposalCard
                 key={index}
-                proposalId={proposal.data._tokenId}
+                proposalId={proposal.data._id}
                 tokenId={+proposal.data._tokenId}
                 title={proposal.data._ipfsHash}
                 description={proposal.data._ipfsHash}
-                // yesRate={proposal.data.yesRate}
-                // noRate={proposal.data.noRate}
+                yesRate={yesRate}
+                noRate={noRate}
               />
             ))}
           </div>

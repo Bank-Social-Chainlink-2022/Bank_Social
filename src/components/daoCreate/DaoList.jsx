@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-
+import React, { useState, useEffect, useContext } from "react";
+import { Link } from "react-router-dom";
 import { listOfDao } from "../../assets/dummy";
 
 import { useBankSocialActivity } from "wagmi-banksocial";
@@ -7,20 +7,27 @@ import {
   socialBankCoreAddress,
   socialBankABI,
 } from "../../constants/constants";
+import { DaoContext } from "../../context/DaoContext";
 
 const DaoList = () => {
+  const [initialDaoList, setInitialDoaList] = useState([]);
   const [daoList, setDaoList] = useState([]);
   const [search, setSearch] = useState("");
 
+  const { createdDaoList, setCreatedDaoList } = useContext(DaoContext);
+
   const handleFilter = (event) => {
     const searchWord = event.target.value;
+    console.log(searchWord);
     if (searchWord !== "") {
-      const newFilter = listOfDao.filter((value) => {
-        return value.title.toLowerCase().includes(searchWord.toLowerCase());
+      const newFilter = initialDaoList.filter((value) => {
+        return value.data.bankName
+          .toLowerCase()
+          .includes(searchWord.toLowerCase());
       });
       setDaoList(newFilter);
     } else {
-      setDaoList(daoList);
+      setDaoList(initialDaoList);
     }
     setSearch(searchWord);
   };
@@ -36,14 +43,14 @@ const DaoList = () => {
   useEffect(() => {
     const getDaos = async () => {
       const data = await activities;
+      setInitialDoaList(data);
       setDaoList(data);
+      setCreatedDaoList(data);
     };
     getDaos();
   }, [activities]);
 
-  console.log(daoList);
-
-  console.log(activities);
+  console.log(search);
   return (
     <div className="text-black flex flex-col mt-10">
       <div className="text-white font-Roboto font-semibold text-xl">
@@ -63,15 +70,15 @@ const DaoList = () => {
           <div className="mt-2 w-108 h-60 bg-white overflow-hidden overflow-y-auto rounded-md mx-auto">
             {daoList.map((value, key) => {
               return (
-                <li>
-                  <a
-                    href={value.nftURI}
-                    className="text-black h-10 flex align-middle w-full no-underline hover:bg-slate-200 mt-1"
-                    target="_blank"
+                <li key={key}>
+                  <Link
+                    to={`/daopage/${value.data.daoId}`}
+                    className="text-black h-10 flex align-middle w-full
+                    no-underline hover:bg-slate-200 mt-1"
                     rel="noreferrer"
                   >
-                    <p className="ml-3">{value.title}</p>
-                  </a>
+                    <p className="ml-3">{value.data.bankName}</p>
+                  </Link>
                 </li>
               );
             })}
@@ -80,6 +87,29 @@ const DaoList = () => {
           <p>No Results</p>
         )}
       </ul>
+
+      {/* <ul className="overflow-scroll h-[370px] sm:h-[450px] ">
+        {daoList && daoList.length > 0 ? (
+          <div className="mt-2 w-108 h-60 bg-white overflow-hidden overflow-y-auto rounded-md mx-auto">
+            {daoList.map((value, key) => {
+              return (
+                <li key={key}>
+                  <Link
+                    // to={`/daopage/${value.data.daoId}`}
+                    className="text-black h-10 flex align-middle w-full
+                    no-underline hover:bg-slate-200 mt-1"
+                    rel="noreferrer"
+                  >
+                    <p className="ml-3">{value.title}</p>
+                  </Link>
+                </li>
+              );
+            })}
+          </div>
+        ) : (
+          <p>No Results</p>
+        )}
+      </ul> */}
     </div>
   );
 };

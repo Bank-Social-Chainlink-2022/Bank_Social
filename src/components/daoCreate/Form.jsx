@@ -2,15 +2,14 @@ import React, { useContext } from "react";
 import { useState } from "react";
 import CreateDao from "./CreateDao";
 import DetailsForDao from "./DetailsForDao";
-import DiscordIntegration from "./DiscordIntegration";
+import StakeAmount from "./StakeAmount";
 import ReviewInfo from "./ReviewInfo";
 import CreateOrJoin from "./CreateOrJoin";
 
 import { DaoContext } from "../../context/DaoContext";
 
 const Form = () => {
-  const { setOpenModalBox, openModalBox, createDaoOpen, contractCreateDAO } =
-    useContext(DaoContext);
+  const { contractCreateDAO } = useContext(DaoContext);
   const [page, setPage] = useState(0);
 
   const FormTitles = [
@@ -28,7 +27,7 @@ const Form = () => {
       return <DetailsForDao />;
     }
     if (page === 2) {
-      return <DiscordIntegration />;
+      return <StakeAmount />;
     } else if (page === 3) {
       return <ReviewInfo />;
     }

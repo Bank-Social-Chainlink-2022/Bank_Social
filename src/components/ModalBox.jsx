@@ -30,6 +30,7 @@ function ModalBox(props) {
     setCreateDaoOpen,
     joinDaoOpen,
     setJoinDaoOpen,
+    clearCreatDaoForm,
   } = useContext(DaoContext);
 
   let subtitle;
@@ -43,12 +44,15 @@ function ModalBox(props) {
     setOpenModalBox(false);
     setCreateDaoOpen(false);
     setJoinDaoOpen(false);
+    clearCreatDaoForm();
   }
 
   const goBack = () => {
     setCreateDaoOpen(false);
     setJoinDaoOpen(false);
+    clearCreatDaoForm();
   };
+
   return (
     <div>
       <Modal
@@ -83,7 +87,7 @@ function ModalBox(props) {
         <div className="mt-3 absolute right-4 top-0 ml-5">
           <button
             onClick={goBack}
-            className="text-white hover:bg-gray-400 h-7 w-16 float-right rounded-md"
+            className="hover:text-white hover:bg-gray-400 h-7 w-16 float-right rounded-md  bg-gray-200 text-black"
           >
             Back
           </button>{" "}

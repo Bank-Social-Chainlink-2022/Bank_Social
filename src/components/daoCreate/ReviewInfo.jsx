@@ -10,9 +10,9 @@ const ReviewInfo = () => {
       <p className="mt-3 font-semibold">
         Description : {createDaoForm.DaoDesc}
       </p>
-      <p className="mt-3 font-semibold">NFT Image : {createDaoForm.Logo}</p>
-      {/* <p className="mt-1">Header : {createDaoForm.Header}</p> /}
-      {/ <p className="mt-1">Discord Link: {createDaoForm.DaoName}</p> */}
+      <p className="mt-3 font-semibold">
+        NFT Image : {createDaoForm.image.name}
+      </p>
       <p className="mt-3 font-semibold">
         Max. Supply for NFT : {createDaoForm.NFTNumber}
       </p>

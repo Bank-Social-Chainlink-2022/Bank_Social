@@ -2,11 +2,11 @@ import React, { useContext } from "react";
 import { DaoContext } from "../../context/DaoContext";
 
 const DetailsForDao = () => {
-  const handleFileSelected = (myEvent) => {
-    const files = Array.from(myEvent.target.files);
-    console.log("files:", files);
-  };
   const { createDaoForm, setCreateDaoForm } = useContext(DaoContext);
+  const handleFileSelected = (myEvent) => {
+    const files = myEvent.target.files[0];
+    setCreateDaoForm({ ...createDaoForm, image: files });
+  };
 
   return (
     <div className="mt-8 mb-20">
