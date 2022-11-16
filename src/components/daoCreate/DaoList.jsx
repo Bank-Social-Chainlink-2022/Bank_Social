@@ -3,10 +3,7 @@ import { Link } from "react-router-dom";
 import { listOfDao } from "../../assets/dummy";
 
 import { useBankSocialActivity } from "wagmi-banksocial";
-import {
-  socialBankCoreAddress,
-  socialBankABI,
-} from "../../constants/constants";
+import { socialBankAddress, socialBankABI } from "../../constants/constants";
 import { DaoContext } from "../../context/DaoContext";
 
 const DaoList = () => {
@@ -35,7 +32,7 @@ const DaoList = () => {
   const { activities } = useBankSocialActivity({
     API_URL:
       "https://polygon-mainnet.g.alchemy.com/v2/Xq_z95TxOAt6M8hij5bEQ09_Lk3gSt_r",
-    contractAddress: socialBankCoreAddress,
+    contractAddress: socialBankAddress,
     contractABI: socialBankABI,
     network: "polygon",
   });

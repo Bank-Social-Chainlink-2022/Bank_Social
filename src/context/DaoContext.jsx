@@ -1,20 +1,19 @@
 import React, { createContext, useEffect, useState } from "react";
-import { swapAddress } from "../constants/constants";
+import {
+  swapAddress,
+  daoVaultAddress,
+  daoAddress,
+  socialBankAddress,
+} from "../constants/constants";
 import {
   aaveATokenAddress,
-  daoAddress,
-  daoVaultAddress,
-  memberCardABI,
-  memberCardAddress,
   poolAddress,
-  socialBankAddress,
   usdcAddress,
   useAccount,
   useBankSocialActivity,
   useCreateDAO,
   useDaosById,
   useManualPerformUpkeep,
-  useMemberMint,
   usePassTime,
   usePropose,
   useStake,
