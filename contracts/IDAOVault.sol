@@ -5,14 +5,14 @@ interface IDAOVault {
     
     function autoPayout() external;
 
-    function harvestYield(address _account, uint _amount) external returns (uint256);
-
-    function setBenificiary(address _receiver, address _proposer, uint256 _amount, string memory _tokenPayout) external;
+    function setBenificiary(address _receiver, address _proposer, uint256 _amount, bool _tokenPayout, uint _tokenId) external;
 
     function deleteBenificiary() external;
 
+    function setDAOAdmin(address _DAO) external;
+
     function getProposeAddress() external view returns (address);
 
-    function setDAOAdmin(address _DAO) external;
+    function getBenificiaryId() external view returns (uint256);
 
 }

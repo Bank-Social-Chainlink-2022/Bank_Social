@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.10;
 
 import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
@@ -12,7 +11,6 @@ import "./IDAOVault.sol";
 error Election__NoCandidates();
 error Payment__Failure();
 
-//make the proposers ID non transferable for the duration of the stake
 contract DAO is  KeeperCompatibleInterface  {
     using Counters for Counters.Counter;
 
@@ -21,9 +19,8 @@ contract DAO is  KeeperCompatibleInterface  {
     IMemberCard memberCardInterface;
     address memberCardAddr;
 
-    //should we create a modifier for the MOD
-    bool public payoutInProgress = true;
-    uint256 public weeklyTimeSchedule = 120; //This is how much it subtracts by 
+    bool public payoutInProgress = false;
+    uint256 public weeklyTimeSchedule = 120; //payouts counter tracker
 
     enum ProposelPeriod {
         OPEN,
@@ -35,15 +32,16 @@ contract DAO is  KeeperCompatibleInterface  {
     uint [] public s_proposals;
     address public owner;
 
-    uint256 public immutable intervalWeek = 600; //10 minutes this is when the payout is called 
+    uint256 public intervalWeek = 60; //1 minute
     uint256 public lastTimeStamp;
 
     struct Proposal {
         uint id;
+        uint tokenId;
         address proposer;
         address receiver;
         uint amount;
-        string tokenSelection;
+        bool tokenSwap;
         string description;
         uint yesVotes;
         uint noVotes;
@@ -60,9 +58,9 @@ contract DAO is  KeeperCompatibleInterface  {
     uint public proposalsPassed;
 
     //DAO EVENTS 
-    event ProposalCreated(address indexed _proposer, address _receiver, uint _id, uint256 _amount, string _ipfsHash, string _tokenSelection);
-    event ProposalElected(bool _passed, address indexed _proposer, address indexed _receiver, uint _id);
-    event VoteCast(address indexed _from, uint256 _votesUp, uint256 _votesDown, bool _yes, uint _proposalid);
+    event ProposalCreated(address indexed _proposer, address _receiver, uint _id, uint256 _amount, string _ipfsHash, bool _tokenSwap, uint _tokenId);
+    event ProposalElected(bool _passed, address indexed _proposer, address indexed _receiver, uint _id, uint _tokenId);
+    event VoteCast(address indexed _from, uint256 _votesUp, uint256 _votesDown, bool _yes, uint _proposalid, uint _tokenId);
     event TokenWeight(
         uint256 indexed _TOKENID, 
         address indexed contractAddress, 
@@ -79,7 +77,7 @@ contract DAO is  KeeperCompatibleInterface  {
         memberCardAddr = _memberCardInterface;
     }
 
-    function propose (uint _amount, string memory _tokenSelection, string memory _ipfsHash, address _customer, address _receiver, uint256 _tokenId) public {
+    function propose (bool _tokenSwap, string memory _ipfsHash, address _receiver, uint256 _tokenId) public {
         require(s_proposelPeriod == ProposelPeriod.OPEN, "Proposel Period is not open");
         
         address tokenOwner = IERC721(memberCardAddr).ownerOf(_tokenId);
@@ -90,10 +88,11 @@ contract DAO is  KeeperCompatibleInterface  {
         Proposal memory _proposal;
 
         _proposal.id = totalProposals;
-        _proposal.proposer = _customer;
+        _proposal.tokenId = _tokenId;
+        _proposal.proposer = msg.sender;
         _proposal.receiver = _receiver;
-        _proposal.amount = _amount;
-        _proposal.tokenSelection = _tokenSelection;
+        _proposal.amount = 10;
+        _proposal.tokenSwap = _tokenSwap;
         _proposal.description = _ipfsHash;
 
         proposals[_proposal.id] = _proposal;
@@ -101,7 +100,7 @@ contract DAO is  KeeperCompatibleInterface  {
 
         s_proposals.push(totalProposals);
 
-        emit ProposalCreated(_customer, _receiver, _amount, _proposal.id, _ipfsHash, _tokenSelection);
+        emit ProposalCreated(msg.sender, _receiver, _proposal.amount , _proposal.id, _ipfsHash, _tokenSwap, _tokenId);
  
     }
 
@@ -123,7 +122,7 @@ contract DAO is  KeeperCompatibleInterface  {
             }
             proposals[winningID].isPassed = true;
 
-            emit ProposalElected(proposals[winningID].isPassed, proposals[winningID].proposer, proposals[winningID].receiver, proposals[winningID].id);
+            emit ProposalElected(proposals[winningID].isPassed, proposals[winningID].proposer, proposals[winningID].receiver, proposals[winningID].id, proposals[winningID].tokenId);
 
             return winningID;  
     }
@@ -133,13 +132,13 @@ contract DAO is  KeeperCompatibleInterface  {
           for (uint i = 0; i <= s_proposals.length; i++) {
                 if(proposals[i].yesVotes <= proposals[_winningProposal].yesVotes){
                     proposals[i].isPassed = false;
-                    emit ProposalElected(proposals[i].isPassed, proposals[i].proposer, proposals[i].receiver, proposals[i].id);
+                    emit ProposalElected(proposals[i].isPassed, proposals[i].proposer, proposals[i].receiver, proposals[i].id, proposals[i].tokenId);
                     delete proposals[i];
                 }
             }
     }
  
-    function calculateWinner() internal returns (address, address, string memory, uint256) {
+    function calculateWinner() internal returns (address, address, bool, uint256, uint256) {
         require((block.timestamp - lastTimeStamp) > intervalWeek);
 
         uint256 winningProposal = getHighestVote();
@@ -150,7 +149,9 @@ contract DAO is  KeeperCompatibleInterface  {
  
         uint256 awardAmount = proposals[winningProposal].amount;
 
-        string memory tokenSelection = proposals[winningProposal].tokenSelection;
+        uint256 tokenId = proposals[winningProposal].tokenId;
+
+        bool tokenSwap = proposals[winningProposal].tokenSwap;
 
         getLosers(winningProposal);
  
@@ -161,13 +162,14 @@ contract DAO is  KeeperCompatibleInterface  {
 
         s_proposelPeriod = ProposelPeriod.CLOSED; //while calculating it is closed
 
-        return (winnerAddress, proposer, tokenSelection, awardAmount);
+        return (winnerAddress, proposer, tokenSwap, awardAmount, tokenId);
 
     }
 
-    function vote(bool _yes, uint _proposalId, address _voter, uint256 _tokenId) public {
+    function vote(bool _yes, uint _proposalId, uint256 _tokenId) public {
         require(s_proposelPeriod == ProposelPeriod.OPEN, "Proposel Period is not open");
-        require(voterHistory[_proposalId][_voter] == false, "User already voted");
+        //require(voterHistory[_proposalId][msg.sender] == false, "User already voted");
+        //How do we get people to vote once 
 
         address tokenOwner = IERC721(memberCardAddr).ownerOf(_tokenId);
         require(IERC721(memberCardAddr).balanceOf(msg.sender) >= 1, "Use doesn't have enough NFTs to create proposal"); 
@@ -181,7 +183,7 @@ contract DAO is  KeeperCompatibleInterface  {
         } else {
             proposals[_proposalId].noVotes += (1 + _weightedVote);
         }
-        voterHistory[_proposalId][_voter] == true;
+        //voterHistory[_proposalId][msg.sender] == true;
         emit TokenWeight(
             _tokenId, 
             address(this), 
@@ -189,14 +191,23 @@ contract DAO is  KeeperCompatibleInterface  {
         );
     }
 
-    function passTime() internal {
+    function manualPerformUpkeep() public {
+        (address _winnerAddress, address _proposer, bool _tokenSwap, uint256 _amount, uint _tokenId) = calculateWinner();
+        daoVault.setBenificiary(_winnerAddress, _proposer, _amount, _tokenSwap, _tokenId);
+        //passTime();
+    }
+
+    //this should be internal but for testing lets keep
+    function passTime() public {
         weeklyTimeSchedule = weeklyTimeSchedule - 20;
         payout();
     }
 
     function reset() internal {
-        weeklyTimeSchedule = weeklyTimeSchedule + 120;
+        weeklyTimeSchedule = weeklyTimeSchedule + 40;
         payoutInProgress = false;
+        uint256 _tokenId = daoVault.getBenificiaryId();
+        memberCardInterface.resetNonTransferableToken(_tokenId);
         daoVault.deleteBenificiary();
     }
 
@@ -204,26 +215,30 @@ contract DAO is  KeeperCompatibleInterface  {
         daoVault.autoPayout();
     }
 
-    function payout() internal {      
-        if (weeklyTimeSchedule  == 100) {
-            payoutInProgress= true;
-        } else if (weeklyTimeSchedule  == 80) {
-            sendFundsToUser();
-        } else if (weeklyTimeSchedule  == 60) { 
-            sendFundsToUser(); 
-        } else if (weeklyTimeSchedule == 40) { 
-            sendFundsToUser(); 
-        } else if (weeklyTimeSchedule  == 20) { 
-            sendFundsToUser(); 
-        } else if (weeklyTimeSchedule < 20) {
-            //in this reset function we will reset the transferablity of the owner
-            reset();
-        }
-    }
+    //We Will Try This Weekly Payout Thing Later For Noiw Lets Just Do Single Payouts
+    //We are going to pay them in 4 over 10 - 15 min - we might make this plus 1 just to show what is happening
+    //function payout() internal {   
+            //sendFundsToUser();
+        //if (weeklyTimeSchedule == 100) {
+            //sendFundsToUser();
+        //} else if (weeklyTimeSchedule  == 80) {
+            //sendFundsToUser();
+        //} else if (weeklyTimeSchedule  == 60) { 
+            //sendFundsToUser(); 
+        //} else if (weeklyTimeSchedule == 40) { 
+            //reset();
+        //} 
+    //}
 
-    //CHAINLINK WOULD GO HERE - with chainlink because we dont need to call these function we can run harvest yield in this 
-    //How Would I Set This Automatically So I Dont Have To Manually Input The Address In Chainlink Each Time
-    //Same Thing With The Enitre Contract, I Dont Want To Manually Set Up Each Contract With Moralis 
+    function payout() internal {  
+        if(weeklyTimeSchedule >= 100) {
+            sendFundsToUser();
+        }
+        else if (weeklyTimeSchedule == 80) {
+            reset();
+        } 
+    } 
+
     function checkUpkeep(
         bytes calldata /* checkData */
     )
@@ -235,10 +250,10 @@ contract DAO is  KeeperCompatibleInterface  {
         )
     {
  
-        bool isOpen = s_proposelPeriod == ProposelPeriod.OPEN;
+        //bool isOpen = ProposelPeriod.OPEN == s_proposelPeriod;
         bool timePassed = ((block.timestamp - lastTimeStamp) > intervalWeek);
-        bool hasCandidates = s_proposals.length > 0;
-        upkeepNeeded = (timePassed && isOpen && hasCandidates);
+        //bool hasCandidates = s_proposals.length > 0;
+        upkeepNeeded = (timePassed); //asCandidates
         return (upkeepNeeded, "0x0");
        
     }
@@ -248,21 +263,22 @@ contract DAO is  KeeperCompatibleInterface  {
     ) external {
  
             if((block.timestamp - lastTimeStamp) > intervalWeek){
- 
-                if(payoutInProgress && s_proposals.length > 0){
 
-                    //grab the address from the core contract and factory pass it through to make that non transferablle
-                    (address _winnerAddress, address _proposer, string memory _tokenSelection, uint256 _amount) = calculateWinner();
-                    daoVault.setBenificiary(_winnerAddress, _proposer, _amount, _tokenSelection);
+                if(!payoutInProgress && s_proposals.length > 0){
+
+                    (address _winnerAddress, address _proposer, bool _tokenSwap, uint256 _amount, uint _tokenId) = calculateWinner();
+                    daoVault.setBenificiary(_winnerAddress, _proposer, _amount, _tokenSwap, _tokenId);
                     passTime();
-
-                    //the proposer address is for tracking event 
+                    s_proposelPeriod = ProposelPeriod.OPEN;
+                    payoutInProgress = true;
  
-                } else if(!payoutInProgress) {
+                //Hold Funds Till The Next Stake Period 
+                } else if(payoutInProgress == true) {
                
                     passTime();
  
                 } else {
+
                     revert Election__NoCandidates();
                 }
  
