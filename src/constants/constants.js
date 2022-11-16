@@ -3,15 +3,15 @@ import socialBankJson from "./socialBankCore.json";
 import daoVaultJson from "./daoVault.json";
 import daoJson from "./dao.json";
 
-export const memberCardAddress = "0xbe645cd966A8C07797878AF9859C0EA90EBC5d94";
+export const memberCardAddress = "0xe05D9ae23e3BD841FFCD93c7b276b9a77d576cC8";
 export const memberCardAddressABI = memberCardJson;
 
 export const socialBankCoreAddress =
-  "0x4c7A4a07FE11A5a3f246Ba3Eff88B983C460ba90";
+  "0xbb3a26E187C06C5495d59853476207bEf0765CA6";
 export const socialBankABI = socialBankJson;
 
-export const daoVaultAddress = "0xb3CCed8BCFdEd17d5f3C1709E808cAb42D92bc8b";
+export const daoVaultAddress = "0xF73e8B74A88B554e8879D0A754838EC2b2b763eA";
 export const daoVaultABI = daoVaultJson;
 
-export const daoAddress = "0xb796a42a4290b0f9a29418d33B8bFd4124499015";
+export const daoAddress = "0x84275ff4eEe34Cf50D5D0D1C966cBA0bd0d38941";
 export const daoABI = daoJson;
