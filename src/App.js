@@ -1,21 +1,20 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 
-import { DaoPage, Mainpage } from "./pages";
 import { Navbar, ProposalModal } from "./components";
 import { DaoContextProvider } from "./context/DaoContext";
+import { DaoPage, Mainpage } from "./pages";
 
 import {
-  WagmiConfig,
-  createClient,
   chain,
   configureChains,
+  createClient,
   defaultChains,
+  WagmiConfig,
 } from "wagmi-banksocial";
-import { MetaMaskConnector } from "wagmi-banksocial/connectors/metaMask";
 import { InjectedConnector } from "wagmi-banksocial/connectors/injected";
-import { getDefaultProvider } from "ethers";
+import { MetaMaskConnector } from "wagmi-banksocial/connectors/metaMask";
 import { alchemyProvider } from "wagmi-banksocial/providers/alchemy";
 import { publicProvider } from "wagmi-banksocial/providers/public";
 const { chains, provider, webSocketProvider } = configureChains(

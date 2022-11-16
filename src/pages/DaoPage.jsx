@@ -1,9 +1,9 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ProposalCard, ProposalModal } from "../components";
-import { DaoContext } from "../context/DaoContext";
 import { useBankSocialActivity } from "wagmi-banksocial";
-import { daoAddress, daoABI } from "../constants/constants";
+import { ProposalCard } from "../components";
+import { daoABI, daoAddress } from "../constants/constants";
+import { DaoContext } from "../context/DaoContext";
 
 const DaoPage = () => {
   const [proposals, setProposals] = useState([]);
