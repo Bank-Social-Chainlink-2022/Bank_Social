@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useBankSocialActivity } from "wagmi-banksocial";
 import { ProposalCard } from "../components";
-import { daoABI, daoAddress } from "../constants/constants";
+import { daoABI } from "../constants/constants";
 import { DaoContext } from "../context/DaoContext";
 
 const DaoPage = () => {
@@ -27,6 +27,7 @@ const DaoPage = () => {
     setUnStakeId,
     createdDaoList,
     setDaoIdNumber,
+    deployedDaoAddress,
   } = useContext(DaoContext);
   const { daoId } = useParams();
   setDaoIdNumber(daoId);
@@ -38,7 +39,7 @@ const DaoPage = () => {
   const { activities } = useBankSocialActivity({
     API_URL:
       "https://polygon-mainnet.g.alchemy.com/v2/Xq_z95TxOAt6M8hij5bEQ09_Lk3gSt_r",
-    contractAddress: daoAddress,
+    contractAddress: deployedDaoAddress,
     contractABI: daoABI,
     network: "polygon",
   });
@@ -46,6 +47,7 @@ const DaoPage = () => {
   useEffect(() => {
     const fileter = async () => {
       const data = await activities;
+
       const proposalResult = data.filter(
         (dao) => dao.eventName === "ProposalCreated"
       );

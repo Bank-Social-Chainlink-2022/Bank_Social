@@ -23,6 +23,8 @@ import {
   useConnect,
   useDisconnect,
   useUploadIPFS,
+  useVaultAddress,
+  useDAOAddress,
 } from "wagmi-banksocial";
 import { InjectedConnector } from "wagmi-banksocial/connectors/injected";
 
@@ -130,16 +132,31 @@ export const DaoContextProvider = ({ children }) => {
     swapAddress: swapAddress,
   });
 
+  /** Get CreateDAO Contract Addresses */
+  const { data: deployedVaultAddress } = useVaultAddress({
+    daoId: daoIdNumber || 0,
+  });
+
+  const { data: deployedDaoAddress } = useDAOAddress({
+    daoId: daoIdNumber || 0,
+  });
+
   /** Start with DAO Vault */
   const { write: _approveUSDC } = useUSDCApprove({
     spender: daoVaultAddress,
     amount: usdcApprove,
     usdcAddress: usdcAddress,
   });
-  const { write: _stake } = useStake({ amount: stakeAmount });
+  const { write: _stake } = useStake({
+    amount: stakeAmount,
+    daoVaultAddress: deployedVaultAddress || daoVaultAddress,
+  });
 
   // TODO get owner all NFTs ID.
-  const { write: _unstake } = useUnstake({ tokenId: unStakeId }); // Change tokenId to yours
+  const { write: _unstake } = useUnstake({
+    tokenId: unStakeId,
+    daoVaultAddress: deployedVaultAddress || daoVaultAddress,
+  }); // Change tokenId to yours
   // const _harvest = useHarvest()
 
   /** The DAO */
@@ -155,13 +172,14 @@ export const DaoContextProvider = ({ children }) => {
       proposalForm.tokenId === undefined
         ? 0
         : +proposalForm.tokenId, // Change tokenId to yours
-    daoAddress: daoAddress,
+    daoAddress: deployedDaoAddress || deployedDaoAddress,
   });
 
   const { write: _vote } = useVote({
     vote: voteInfo.vote,
     proposalId: voteInfo.proposalId,
     tokenId: voteInfo.tokenId,
+    daoAddress: deployedDaoAddress || deployedDaoAddress,
   });
   const { write: _performUpkeep } = useManualPerformUpkeep({
     daoAddress: daoAddress,
@@ -212,6 +230,9 @@ export const DaoContextProvider = ({ children }) => {
         setOpenModalBox,
         createdDaoList,
         setCreatedDaoList,
+
+        deployedVaultAddress,
+        deployedDaoAddress,
 
         daoIdNumber,
         setDaoIdNumber,
