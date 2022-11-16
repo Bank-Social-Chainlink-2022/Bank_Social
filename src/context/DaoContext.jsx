@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
-
+import { swapAddress } from "../constants/constants";
 import {
   aaveATokenAddress,
   daoAddress,
@@ -8,7 +8,6 @@ import {
   memberCardAddress,
   poolAddress,
   socialBankAddress,
-  swapAddress,
   usdcAddress,
   useAccount,
   useBankSocialActivity,

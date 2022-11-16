@@ -15,3 +15,5 @@ export const daoVaultABI = daoVaultJson;
 
 export const daoAddress = "0x84275ff4eEe34Cf50D5D0D1C966cBA0bd0d38941";
 export const daoABI = daoJson;
+
+export const swapAddress = "0xE13A82931934d69f44Cc093BD23d4010505Fc57a ";
