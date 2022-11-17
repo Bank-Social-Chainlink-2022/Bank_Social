@@ -1,7 +1,7 @@
 # Bank_Social
 Chain-link Hackathon 2022.
 
-Techstack: Chainlink Keeper, upload image to IPFS, AAVE protocol, Solidity, TailwindCSS, React, Wagmi hooks 
+Techstack: Chainlink Keeper, upload image to IPFS, AAVE protocol, Deployment to Polygon Blockchain, Solidity, TailwindCSS, React, Wagmi hooks 
 
 ## Contracts and Factories
 
