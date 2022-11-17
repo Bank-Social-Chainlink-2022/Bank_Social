@@ -7,7 +7,7 @@ import { DaoContext } from "../context/DaoContext";
 
 const DaoPage = () => {
   const [proposals, setProposals] = useState([]);
-  const [pickCreateDao, setPickCreateDao] = useState();
+  // const [pickCreateDao, setPickCreateDao] = useState();
   const [totalVotes, setTotalVotes] = useState([]);
   const [totalYesVotes, setTotalYesVotes] = useState([]);
   const [totalNoVotes, setTotalNoVotes] = useState([]);
@@ -28,6 +28,9 @@ const DaoPage = () => {
     createdDaoList,
     setDaoIdNumber,
     deployedDaoAddress,
+    pickCreateDao,
+    setPickCreateDao,
+    pickCreateDaoAddress,
   } = useContext(DaoContext);
   const { daoId } = useParams();
   setDaoIdNumber(daoId);
@@ -39,7 +42,7 @@ const DaoPage = () => {
   const { activities } = useBankSocialActivity({
     API_URL:
       "https://polygon-mainnet.g.alchemy.com/v2/Xq_z95TxOAt6M8hij5bEQ09_Lk3gSt_r",
-    contractAddress: deployedDaoAddress,
+    contractAddress: pickCreateDaoAddress,
     contractABI: daoABI,
     network: "polygon",
   });
@@ -72,6 +75,8 @@ const DaoPage = () => {
     fileter();
   }, [activities]);
 
+  console.log(activities);
+
   useEffect(() => {
     const fileter = async () => {
       const data = await createdDaoList;
@@ -79,7 +84,7 @@ const DaoPage = () => {
       setPickCreateDao(result[0]);
     };
     fileter();
-  }, [createdDaoList]);
+  }, [createdDaoList.daoId]);
 
   const yesRate = Math.round(
     Number(totalYesVotes.length / totalVotes.length) * 100
@@ -161,38 +166,7 @@ const DaoPage = () => {
                 STAKING
               </button>
             </div>
-            {/* <div className="w-[360px] h-[380px] border-color border-4 bg-sub-bg rounded-xl flex flex-col py-6 px-2 gap-10 ">
-              <div className="text-left flex flex-col gap-5 pl-6">
-                <p className="text-sub-text text-lg">Total Minted NFT</p>
-                <p className=" text-title-text text-3xl">8962</p>
-              </div>
-              <div className="border-color border-2 w-[100%] mx-auto" />
-              <div className="flex gap-4 pl-6 h-10 items-center ">
-                <p className="text-sub-text text-lg">Address:</p>
-                <p className="text-sub-text text-lg">0xru...8fr7</p>
-              </div>
-              <div className="w-full h-14 py-3">
-                <p className="text-title-text font-bold text-2xl text-left pl-6">
-                  OWNED
-                </p>
-              </div>
-            </div> */}
-            {/* card 3 */}
-            {/* <div className="w-[360px] h-[380px] border-color border-4 bg-sub-bg rounded-xl flex flex-col py-6 px-2 gap-10 ">
-              <div className="text-left flex flex-col gap-5 pl-6">
-                <p className="text-sub-text text-lg">Total Staked Amount</p>
-                <p className=" text-title-text text-3xl">$12345.00</p>
-              </div>
-              <div className="border-color border-2 w-[100%] mx-auto" />
-              <div className="flex gap-4 pl-6 h-10 items-center ">
-                <p className="text-sub-text text-lg">Total Claimed Proposal</p>
-              </div>
-              <div className="w-full h-14 py-3">
-                <p className="text-title-text font-bold text-2xl text-left pl-6">
-                  17
-                </p>
-              </div>
-            </div> */}
+
             <div className="w-[360px] h-[380px] border-color border-4 bg-sub-bg rounded-xl flex flex-col py-6 px-2 gap-10 ">
               <div className="text-left flex flex-col gap-5 pl-6">
                 <p className="text-sub-text text-lg ">Max Supply</p>

@@ -11,11 +11,11 @@ const DaoList = () => {
   const [daoList, setDaoList] = useState([]);
   const [search, setSearch] = useState("");
 
-  const { createdDaoList, setCreatedDaoList } = useContext(DaoContext);
+  const { setCreatedDaoList, setPickCreateDaoAddress } = useContext(DaoContext);
 
   const handleFilter = (event) => {
     const searchWord = event.target.value;
-    console.log(searchWord);
+
     if (searchWord !== "") {
       const newFilter = initialDaoList.filter((value) => {
         return value.data.bankName
@@ -28,6 +28,7 @@ const DaoList = () => {
     }
     setSearch(searchWord);
   };
+  console.log(search);
 
   const { activities } = useBankSocialActivity({
     API_URL:
@@ -36,6 +37,8 @@ const DaoList = () => {
     contractABI: socialBankABI,
     network: "polygon",
   });
+  // console.log(+initialDaoList[0].data.daoId);
+  // console.log(+initialDaoList[1].data.daoId);
 
   useEffect(() => {
     const getDaos = async () => {
@@ -47,7 +50,8 @@ const DaoList = () => {
     getDaos();
   }, [activities]);
 
-  console.log(search);
+  console.log(initialDaoList);
+
   return (
     <div className="text-black flex flex-col mt-10">
       <div className="text-white font-Roboto font-semibold text-xl">
@@ -62,16 +66,19 @@ const DaoList = () => {
         value={search}
       />
 
-      <ul className="overflow-scroll h-[370px] sm:h-[450px] ">
+      <ul className="overflow-scroll h-[370px] sm:h-[250px] ">
         {daoList && daoList.length > 0 ? (
           <div className="mt-2 w-108 h-60 bg-white overflow-hidden overflow-y-auto rounded-md mx-auto">
             {daoList.map((value, key) => {
               return (
-                <li key={key}>
+                <li
+                  key={key}
+                  onClick={() => setPickCreateDaoAddress(value.data.DAOAddress)}
+                >
                   <Link
                     to={`/daopage/${value.data.daoId}`}
                     className="text-black h-10 flex align-middle w-full
-                    no-underline hover:bg-slate-200 mt-1"
+                    no-underline hover:bg-slate-200 pt-2"
                     rel="noreferrer"
                   >
                     <p className="ml-3">{value.data.bankName}</p>
@@ -84,29 +91,6 @@ const DaoList = () => {
           <p>No Results</p>
         )}
       </ul>
-
-      {/* <ul className="overflow-scroll h-[370px] sm:h-[450px] ">
-        {daoList && daoList.length > 0 ? (
-          <div className="mt-2 w-108 h-60 bg-white overflow-hidden overflow-y-auto rounded-md mx-auto">
-            {daoList.map((value, key) => {
-              return (
-                <li key={key}>
-                  <Link
-                    // to={`/daopage/${value.data.daoId}`}
-                    className="text-black h-10 flex align-middle w-full
-                    no-underline hover:bg-slate-200 mt-1"
-                    rel="noreferrer"
-                  >
-                    <p className="ml-3">{value.title}</p>
-                  </Link>
-                </li>
-              );
-            })}
-          </div>
-        ) : (
-          <p>No Results</p>
-        )}
-      </ul> */}
     </div>
   );
 };

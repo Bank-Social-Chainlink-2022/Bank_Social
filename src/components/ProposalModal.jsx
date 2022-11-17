@@ -8,7 +8,7 @@ import { shortenAddress } from "../utils/shortenAddress";
 import { DaoContext } from "../context/DaoContext";
 
 import { useBankSocialActivity } from "wagmi-banksocial";
-import { daoAddress, daoABI } from "../constants/constants";
+import { daoABI } from "../constants/constants";
 
 const VotedAccount = ({ address, result, transaction }) => {
   return (
@@ -25,13 +25,14 @@ const ProposalModal = () => {
   const [totalVotes, setTotalVotes] = useState([]);
   const [totalYesVotes, setTotalYesVotes] = useState([]);
   const [totalNoVotes, setTotalNoVotes] = useState([]);
-  const { vote, setVoteInfo, daoIdNumber } = useContext(DaoContext);
+  const { vote, setVoteInfo, daoIdNumber, pickCreateDaoAddress } =
+    useContext(DaoContext);
   const { tokenId, proposalId } = useParams();
 
   const { activities } = useBankSocialActivity({
     API_URL:
       "https://polygon-mainnet.g.alchemy.com/v2/Xq_z95TxOAt6M8hij5bEQ09_Lk3gSt_r",
-    contractAddress: daoAddress,
+    contractAddress: pickCreateDaoAddress,
     contractABI: daoABI,
     network: "polygon",
   });
