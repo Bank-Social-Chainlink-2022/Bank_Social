@@ -1,5 +1,7 @@
 # Bank_Social
-Chain-link Hackathon 2022
+Chain-link Hackathon 2022.
+
+Techstack: Chainlink Keeper, Solidity, upload image to IPFS, TailwindCSS, React, Wagmi hooks 
 
 ## Contracts and Factories
 
