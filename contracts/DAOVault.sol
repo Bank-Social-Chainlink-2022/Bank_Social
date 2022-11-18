@@ -46,6 +46,8 @@ contract DAOVault is IDAOVault, AccessControlEnumerable {
         uint256 tokenId;
     }
 
+    uint256 public newNumber = 10;
+
     mapping(uint256 => Benificiary) public benificiaries;
     Counters.Counter private benificiaryCounter;       
 
@@ -96,7 +98,7 @@ contract DAOVault is IDAOVault, AccessControlEnumerable {
 
     function stake(uint256 _amount) public returns (uint256) {
         require(token.allowance(msg.sender, address(this)) >= minStake, "Not enough tokens");
-        require(IERC721(memberCardAddr).balanceOf(msg.sender) == 0);
+        //require(IERC721(memberCardAddr).balanceOf(msg.sender) == 0);
 
         uint256 amount = _amount;//* 10**6;
 
@@ -130,7 +132,7 @@ contract DAOVault is IDAOVault, AccessControlEnumerable {
 
         delete customers[msg.sender];
             
-        customers[msg.sender] = 0;
+        //customers[msg.sender] = 0;
         totalStake -= currentStake;
 
         emit UnStaked(msg.sender, totalStake, currentStake);
@@ -157,12 +159,10 @@ contract DAOVault is IDAOVault, AccessControlEnumerable {
             if(claimable() >= 1) {
 
                 POOL.withdraw(tokenAddr, finalAmount, _receiver);
-                token.approve(_receiver, 1000000);
-                token.transfer(_receiver, 1000000);
-
+       
                 wasYieldRetreived = true;
 
-                emit Claimed(_receiver, finalAmount + 1000000);
+                emit Claimed(_receiver, finalAmount);
 
             } else {
 
@@ -185,8 +185,8 @@ contract DAOVault is IDAOVault, AccessControlEnumerable {
             //im not sure if this will work the best way to test it is witha boolean value
             if(claimable() >= 1) {
 
-                POOL.withdraw(tokenAddr, finalAmount, _receiver);
-                uint256 contractBalance = finalAmount + 1000000;
+                POOL.withdraw(tokenAddr, finalAmount, address(this));
+                uint256 contractBalance = token.balanceOf(address(this));
                 token.approve(address(swap), contractBalance); //in the normal one we just do a regular final balance
                 token.transfer(address(swap), contractBalance);
 

@@ -10,11 +10,11 @@ const StakeAmount = () => {
         Minimum Amount allowed to stake :
         <input
           type="text"
-          value={createDaoForm.StakingAmount}
+          value={createDaoForm.stakingAmount}
           onChange={(myEvent) =>
             setCreateDaoForm({
               ...createDaoForm,
-              StakingAmount: myEvent.target.value,
+              stakingAmount: myEvent.target.value,
             })
           }
           className="flex w-full mt-4 rounded-md text-black"

@@ -9,6 +9,7 @@ const ProposalCard = ({
   description,
   yesRate,
   noRate,
+  voteInfo,
 }) => {
   const { vote, setVoteInfo } = useContext(DaoContext);
 
@@ -23,8 +24,10 @@ const ProposalCard = ({
   };
 
   return (
-    <div className="w-full h-[450px] bg-sub-bg border-4 rounded-xl border-color py-4 px-6 flex flex-col gap-3">
-      <h1 className="text-title-text text-4xl">{title}</h1>
+    <div className="w-full h-[450px] bg-sub-bg border-4 rounded-xl border-color py-4 px-6 flex flex-col gap-7">
+      <div className="h-20 pt-6">
+        <h1 className="text-title-text text-4xl">{title}</h1>
+      </div>
       <div className="border-t-[3.5px] border-b-[3.5px] border-color text-sub-text w-[90%] mx-auto text-md py-2 px-3 mt-2 overflow-x-auto">
         <p>{description}</p>
       </div>

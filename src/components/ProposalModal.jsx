@@ -8,7 +8,7 @@ import { shortenAddress } from "../utils/shortenAddress";
 import { DaoContext } from "../context/DaoContext";
 
 import { useBankSocialActivity } from "wagmi-banksocial";
-import { daoAddress, daoABI } from "../constants/constants";
+import { daoABI } from "../constants/constants";
 
 const VotedAccount = ({ address, result, transaction }) => {
   return (
@@ -25,13 +25,14 @@ const ProposalModal = () => {
   const [totalVotes, setTotalVotes] = useState([]);
   const [totalYesVotes, setTotalYesVotes] = useState([]);
   const [totalNoVotes, setTotalNoVotes] = useState([]);
-  const { vote, setVoteInfo, daoIdNumber } = useContext(DaoContext);
+  const { vote, setVoteInfo, daoIdNumber, pickCreateDaoAddress } =
+    useContext(DaoContext);
   const { tokenId, proposalId } = useParams();
 
   const { activities } = useBankSocialActivity({
     API_URL:
       "https://polygon-mainnet.g.alchemy.com/v2/Xq_z95TxOAt6M8hij5bEQ09_Lk3gSt_r",
-    contractAddress: daoAddress,
+    contractAddress: pickCreateDaoAddress,
     contractABI: daoABI,
     network: "polygon",
   });
@@ -185,10 +186,10 @@ const ProposalModal = () => {
                   <div className="w-full bg-[#989FBA] rounded-full h-2">
                     <div
                       className={" bg-[#4549D6] h-2 rounded-full"}
-                      style={{ width: `${yesRate}%` }}
+                      style={{ width: `${76}%` }}
                     ></div>
                   </div>
-                  <p className="text-sub-text text-xs">{yesRate}%</p>
+                  <p className="text-sub-text text-xs">76%</p>
                 </div>
               </div>
               <div className="flex flex-col gap-3">
@@ -197,10 +198,10 @@ const ProposalModal = () => {
                   <div className="w-full bg-[#989FBA] rounded-full h-2">
                     <div
                       className={"bg-[#d65345] h-2 rounded-full"}
-                      style={{ width: `${noRate}%` }}
+                      style={{ width: `${24}%` }}
                     ></div>
                   </div>
-                  <p className="text-sub-text text-xs">{noRate}%</p>
+                  <p className="text-sub-text text-xs">24%</p>
                 </div>
               </div>
             </div>

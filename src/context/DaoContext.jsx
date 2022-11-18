@@ -1,10 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
-import {
-  swapAddress,
-  daoVaultAddress,
-  daoAddress,
-  socialBankAddress,
-} from "../constants/constants";
+import { swapAddress, socialBankAddress } from "../constants/constants";
 import {
   aaveATokenAddress,
   poolAddress,
@@ -24,7 +19,6 @@ import {
   useDisconnect,
   useUploadIPFS,
   useVaultAddress,
-  useDAOAddress,
 } from "wagmi-banksocial";
 import { InjectedConnector } from "wagmi-banksocial/connectors/injected";
 
@@ -33,7 +27,10 @@ export const DaoContext = createContext();
 export const DaoContextProvider = ({ children }) => {
   const [createdDaoList, setCreatedDaoList] = useState([]);
   const [currentAccount, setCurrentAccount] = useState("");
-  const [daoIdNumber, setDaoIdNumber] = useState();
+  const [daoIdNumber, setDaoIdNumber] = useState(0);
+  const [pickCreateDao, setPickCreateDao] = useState();
+  const [pickCreateDaoAddress, setPickCreateDaoAddress] = useState("");
+
   //Open the Modalbox
   const [openModalBox, setOpenModalBox] = useState(false);
 
@@ -41,12 +38,12 @@ export const DaoContextProvider = ({ children }) => {
   const [joinDaoOpen, setJoinDaoOpen] = useState(false);
   //Create Dao Form
   const [createDaoForm, setCreateDaoForm] = useState({
-    DaoName: "",
-    DaoDesc: "",
+    daoName: "",
+    daoDesc: "",
     image: File,
     ipfsURI: "",
-    NFTNumber: 10,
-    StakingAmount: 1,
+    nftNumber: 10,
+    stakingAmount: 1,
   });
   //Dao Proposal Form
   const [proposalForm, setProposalForm] = useState({
@@ -70,15 +67,15 @@ export const DaoContextProvider = ({ children }) => {
 
   const clearCreatDaoForm = () => {
     setCreateDaoForm({
-      DaoName: "",
-      DaoDesc: "",
+      daoName: "",
+      daoDesc: "",
       image: File,
       ipfsURI: "",
-      NFTNumber: 10,
-      StakingAmount: 1,
+      nftNumber: 10,
+      stakingAmount: 1,
     });
   };
-  console.log(createDaoForm);
+
   ///////////////////// Wallet Connection and Disconnection///////////////////
   const { connect } = useConnect({
     connector: new InjectedConnector(),
@@ -99,13 +96,13 @@ export const DaoContextProvider = ({ children }) => {
   useEffect(() => {
     const getMetadataUri = async () => {
       if (
-        createDaoForm.DaoName &&
+        createDaoForm.daoName &&
         createDaoForm.image &&
-        createDaoForm.DaoDesc
+        createDaoForm.daoDesc
       ) {
         const metadata = {
-          name: createDaoForm.DaoName,
-          description: createDaoForm.DaoDesc,
+          name: createDaoForm.daoName,
+          description: createDaoForm.daoDesc,
           image: createDaoForm.image,
         };
 
@@ -120,11 +117,13 @@ export const DaoContextProvider = ({ children }) => {
 
   ///////////////////// From Smart contract///////////////////
 
+  // console.log(pickCreateDao.data.DAOAddress);
+
   const { write: _createDAO } = useCreateDAO({
     initBaseURI: createDaoForm.ipfsURI,
-    maxSupply: +createDaoForm.NFTNumber,
-    minStake: +createDaoForm.StakingAmount,
-    name: createDaoForm.DaoName,
+    maxSupply: +createDaoForm.nftNumber,
+    minStake: +createDaoForm.stakingAmount,
+    name: createDaoForm.daoName,
     socialBankAddress: socialBankAddress,
     usdcAddress: usdcAddress,
     aaveAToken: aaveATokenAddress,
@@ -134,30 +133,25 @@ export const DaoContextProvider = ({ children }) => {
 
   /** Get CreateDAO Contract Addresses */
   const { data: deployedVaultAddress } = useVaultAddress({
-    daoId: daoIdNumber || 0,
+    daoId: daoIdNumber === 0 ? 0 : +daoIdNumber - 1,
   });
+  console.log(deployedVaultAddress);
 
-  const { data: deployedDaoAddress } = useDAOAddress({
-    daoId: daoIdNumber || 0,
-  });
-
-  /** Start with DAO Vault */
   const { write: _approveUSDC } = useUSDCApprove({
-    spender: daoVaultAddress,
+    spender: deployedVaultAddress,
     amount: usdcApprove,
     usdcAddress: usdcAddress,
   });
   const { write: _stake } = useStake({
     amount: stakeAmount,
-    daoVaultAddress: deployedVaultAddress || daoVaultAddress,
+    daoVaultAddress: deployedVaultAddress || deployedVaultAddress,
   });
 
   // TODO get owner all NFTs ID.
   const { write: _unstake } = useUnstake({
     tokenId: unStakeId,
-    daoVaultAddress: deployedVaultAddress || daoVaultAddress,
+    daoVaultAddress: deployedVaultAddress || deployedVaultAddress,
   }); // Change tokenId to yours
-  // const _harvest = useHarvest()
 
   /** The DAO */
   const { write: _propose } = usePropose({
@@ -172,24 +166,25 @@ export const DaoContextProvider = ({ children }) => {
       proposalForm.tokenId === undefined
         ? 0
         : +proposalForm.tokenId, // Change tokenId to yours
-    daoAddress: deployedDaoAddress || deployedDaoAddress,
+    daoAddress: pickCreateDaoAddress || pickCreateDaoAddress,
   });
 
   const { write: _vote } = useVote({
     vote: voteInfo.vote,
-    proposalId: voteInfo.proposalId,
-    tokenId: voteInfo.tokenId,
-    daoAddress: deployedDaoAddress || deployedDaoAddress,
+    proposalId: +voteInfo.proposalId,
+    tokenId: +voteInfo.tokenId,
+    daoAddress: pickCreateDaoAddress || pickCreateDaoAddress,
   });
+
   const { write: _performUpkeep } = useManualPerformUpkeep({
-    daoAddress: daoAddress,
+    daoAddress: pickCreateDaoAddress,
   });
   const { write: _passTime } = usePassTime({
-    daoAddress: daoAddress,
+    daoAddress: pickCreateDaoAddress,
   });
 
   /** Read Contract */
-  const { data: daoIds } = useDaosById({ daoId: 1 });
+  // const { data: daoIds } = useDaosById({ daoId: 1 });
   // console.log("🚀 ~ file: index.tsx ~ line 57 ~ Page ~ daoIds", daoIds);
 
   const contractCreateDAO = () => {
@@ -230,9 +225,11 @@ export const DaoContextProvider = ({ children }) => {
         setOpenModalBox,
         createdDaoList,
         setCreatedDaoList,
-
+        pickCreateDao,
+        setPickCreateDao,
         deployedVaultAddress,
-        deployedDaoAddress,
+        pickCreateDaoAddress,
+        setPickCreateDaoAddress,
 
         daoIdNumber,
         setDaoIdNumber,

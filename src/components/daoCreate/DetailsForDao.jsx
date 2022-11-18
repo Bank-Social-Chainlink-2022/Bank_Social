@@ -24,12 +24,6 @@ const DetailsForDao = () => {
       <div className="mt-16">
         <label className="text-lg text-white font-semibold">
           Maximum Supply for NFT :
-          {/* <input
-            type="file"
-            onChange={handleFileSelected}
-            accept=".png, .jpeg, .jpg"
-            className="ml-5"
-          /> */}
           <input
             type="text"
             onKeyPress={(event) => {
@@ -37,11 +31,11 @@ const DetailsForDao = () => {
                 event.preventDefault();
               }
             }}
-            value={createDaoForm.NFTNumber}
+            value={createDaoForm.nftNumber}
             onChange={(myEvent) =>
               setCreateDaoForm({
                 ...createDaoForm,
-                NFTNumber: myEvent.target.value,
+                nftNumber: myEvent.target.value,
               })
             }
             className="ml-5 font-thin w-72 text-md text-black rounded-md"
