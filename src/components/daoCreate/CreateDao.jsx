@@ -10,11 +10,11 @@ const CreateDao = () => {
           Enter DAO Name :
           <input
             type="text"
-            value={createDaoForm.DaoName}
+            value={createDaoForm.daoName}
             onChange={(myEvent) =>
               setCreateDaoForm({
                 ...createDaoForm,
-                DaoName: myEvent.target.value,
+                daoName: myEvent.target.value,
               })
             }
             className="flex mt-2 w-full text-black rounded-md"
@@ -26,11 +26,11 @@ const CreateDao = () => {
           Enter DAO Description :
           <input
             type="text"
-            value={createDaoForm.DaoDesc}
+            value={createDaoForm.daoDesc}
             onChange={(myEvent) =>
               setCreateDaoForm({
                 ...createDaoForm,
-                DaoDesc: myEvent.target.value,
+                daoDesc: myEvent.target.value,
               })
             }
             className="flex mt-2 w-full text-black rounded-md"

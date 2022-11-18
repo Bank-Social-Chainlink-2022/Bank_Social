@@ -4,6 +4,7 @@ import daoVaultJson from "./daoVault.json";
 import daoJson from "./dao.json";
 
 export const memberCardAddress = "0xe05D9ae23e3BD841FFCD93c7b276b9a77d576cC8";
+// "0x0eDb0716F38B8Ff059b7939008E4D592494a7E70"
 export const memberCardAddressABI = memberCardJson;
 
 export const socialBankAddress = "0x0383E59d8433FACa37f3D947A002a731088Cb31a";

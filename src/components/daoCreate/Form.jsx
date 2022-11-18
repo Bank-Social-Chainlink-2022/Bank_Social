@@ -15,7 +15,7 @@ const Form = () => {
   const FormTitles = [
     "Create a DAO",
     "Enter Details",
-    "Discord Integration",
+    "Minimum Staking",
     "Review",
   ];
 

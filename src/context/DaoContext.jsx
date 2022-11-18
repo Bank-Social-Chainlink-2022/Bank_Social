@@ -38,12 +38,12 @@ export const DaoContextProvider = ({ children }) => {
   const [joinDaoOpen, setJoinDaoOpen] = useState(false);
   //Create Dao Form
   const [createDaoForm, setCreateDaoForm] = useState({
-    DaoName: "",
-    DaoDesc: "",
+    daoName: "",
+    daoDesc: "",
     image: File,
     ipfsURI: "",
-    NFTNumber: 10,
-    StakingAmount: 1,
+    nftNumber: 10,
+    stakingAmount: 1,
   });
   //Dao Proposal Form
   const [proposalForm, setProposalForm] = useState({
@@ -67,12 +67,12 @@ export const DaoContextProvider = ({ children }) => {
 
   const clearCreatDaoForm = () => {
     setCreateDaoForm({
-      DaoName: "",
-      DaoDesc: "",
+      daoName: "",
+      daoDesc: "",
       image: File,
       ipfsURI: "",
-      NFTNumber: 10,
-      StakingAmount: 1,
+      nftNumber: 10,
+      stakingAmount: 1,
     });
   };
 
@@ -96,13 +96,13 @@ export const DaoContextProvider = ({ children }) => {
   useEffect(() => {
     const getMetadataUri = async () => {
       if (
-        createDaoForm.DaoName &&
+        createDaoForm.daoName &&
         createDaoForm.image &&
-        createDaoForm.DaoDesc
+        createDaoForm.daoDesc
       ) {
         const metadata = {
-          name: createDaoForm.DaoName,
-          description: createDaoForm.DaoDesc,
+          name: createDaoForm.daoName,
+          description: createDaoForm.daoDesc,
           image: createDaoForm.image,
         };
 
@@ -121,9 +121,9 @@ export const DaoContextProvider = ({ children }) => {
 
   const { write: _createDAO } = useCreateDAO({
     initBaseURI: createDaoForm.ipfsURI,
-    maxSupply: +createDaoForm.NFTNumber,
-    minStake: +createDaoForm.StakingAmount,
-    name: createDaoForm.DaoName,
+    maxSupply: +createDaoForm.nftNumber,
+    minStake: +createDaoForm.stakingAmount,
+    name: createDaoForm.daoName,
     socialBankAddress: socialBankAddress,
     usdcAddress: usdcAddress,
     aaveAToken: aaveATokenAddress,
@@ -135,7 +135,6 @@ export const DaoContextProvider = ({ children }) => {
   const { data: deployedVaultAddress } = useVaultAddress({
     daoId: daoIdNumber === 0 ? 0 : +daoIdNumber - 1,
   });
-  // let deployedVaultAddress = "asdf";
   console.log(deployedVaultAddress);
 
   const { write: _approveUSDC } = useUSDCApprove({
@@ -172,8 +171,8 @@ export const DaoContextProvider = ({ children }) => {
 
   const { write: _vote } = useVote({
     vote: voteInfo.vote,
-    proposalId: voteInfo.proposalId,
-    tokenId: voteInfo.tokenId,
+    proposalId: +voteInfo.proposalId,
+    tokenId: +voteInfo.tokenId,
     daoAddress: pickCreateDaoAddress || pickCreateDaoAddress,
   });
 

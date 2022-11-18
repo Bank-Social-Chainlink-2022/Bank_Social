@@ -75,8 +75,6 @@ const DaoPage = () => {
     fileter();
   }, [activities]);
 
-  console.log(activities);
-
   useEffect(() => {
     const fileter = async () => {
       const data = await createdDaoList;
@@ -86,13 +84,14 @@ const DaoPage = () => {
     fileter();
   }, [createdDaoList.daoId]);
 
-  const yesRate = Math.round(
-    Number(totalYesVotes.length / totalVotes.length) * 100
-  );
-  const noRate = Math.round(
-    Number(totalNoVotes.length / totalVotes.length) * 100
-  );
+  // const yesRate = Math.round(
+  //   Number(totalYesVotes.length / totalVotes.length) * 100
+  // );
+  // const noRate = Math.round(
+  //   Number(totalNoVotes.length / totalVotes.length) * 100
+  // );
 
+  console.log(activities);
   return (
     <>
       <div className="container h-screen">
@@ -338,8 +337,8 @@ const DaoPage = () => {
                 tokenId={+proposal.data._tokenId}
                 title={proposal.data._ipfsHash}
                 description={proposal.data._ipfsHash}
-                yesRate={yesRate}
-                noRate={noRate}
+                yesRate={76}
+                noRate={24}
               />
             ))}
           </div>

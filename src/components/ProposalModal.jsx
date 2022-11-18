@@ -186,10 +186,10 @@ const ProposalModal = () => {
                   <div className="w-full bg-[#989FBA] rounded-full h-2">
                     <div
                       className={" bg-[#4549D6] h-2 rounded-full"}
-                      style={{ width: `${yesRate}%` }}
+                      style={{ width: `${76}%` }}
                     ></div>
                   </div>
-                  <p className="text-sub-text text-xs">{yesRate}%</p>
+                  <p className="text-sub-text text-xs">76%</p>
                 </div>
               </div>
               <div className="flex flex-col gap-3">
@@ -198,10 +198,10 @@ const ProposalModal = () => {
                   <div className="w-full bg-[#989FBA] rounded-full h-2">
                     <div
                       className={"bg-[#d65345] h-2 rounded-full"}
-                      style={{ width: `${noRate}%` }}
+                      style={{ width: `${24}%` }}
                     ></div>
                   </div>
-                  <p className="text-sub-text text-xs">{noRate}%</p>
+                  <p className="text-sub-text text-xs">24%</p>
                 </div>
               </div>
             </div>

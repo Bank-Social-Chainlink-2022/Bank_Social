@@ -23,7 +23,7 @@ const Homepage = () => {
     },
   ];
   return (
-    <div className="bg-gradient-to-b from-black via-gray-900 to-indigo-900 h-ful w-full">
+    <div className="bg-gradient-to-b from-black via-gray-900 to-indigo-900 h-screen w-full">
       <div className="flex justify-center mx-auto w-screen">
         <h1 className="text-white font-Roboto text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-semibold w-2/3 tracking-wide leading-normal text-center whitespace-normal mt-32 ">
           <span className=" text-white bg-clip-text sm:text-transparent sm:bg-gradient-to-r from-sky-500 via-violet-600 to-violet-200">
