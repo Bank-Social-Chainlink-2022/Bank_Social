@@ -54,9 +54,9 @@ contract MemberCard is IMemberCard, ERC721, AccessControlEnumerable {
         setBaseURI(_initBaseURI);
     }
 
-    function setBirthRewardRate(uint _birthRate) public onlyRole(OWNER) {
-          s_birthRate = _birthRate;
-    }
+    //function setBirthRewardRate(uint _birthRate) public onlyRole(OWNER) {
+          //s_birthRate = _birthRate;
+    //}
 
     //onlyRole(MINTER)
     function setNonTransferableToken(uint _tokenId) external override(IMemberCard) {

@@ -14,10 +14,10 @@ error Payment__Failure();
 contract DAO is  KeeperCompatibleInterface  {
     using Counters for Counters.Counter;
 
-    IDAOVault daoVault;
+    IDAOVault public daoVault;
 
-    IMemberCard memberCardInterface;
-    address memberCardAddr;
+    IMemberCard public memberCardInterface;
+    address public memberCardAddr;
 
     bool public payoutInProgress = false;
     uint256 public weeklyTimeSchedule = 120; //payouts counter tracker
@@ -30,10 +30,11 @@ contract DAO is  KeeperCompatibleInterface  {
     ProposelPeriod public s_proposelPeriod = ProposelPeriod.OPEN;
 
     uint [] public s_proposals;
-    address public owner;
 
     uint256 public intervalWeek = 60; //1 minute
     uint256 public lastTimeStamp;
+
+    uint256 public newNumber = 10;
 
     struct Proposal {
         uint id;
@@ -78,7 +79,7 @@ contract DAO is  KeeperCompatibleInterface  {
     }
 
     function propose (bool _tokenSwap, string memory _ipfsHash, address _receiver, uint256 _tokenId) public {
-        require(s_proposelPeriod == ProposelPeriod.OPEN, "Proposel Period is not open");
+        //require(s_proposelPeriod == ProposelPeriod.OPEN, "Proposel Period is not open");
         
         address tokenOwner = IERC721(memberCardAddr).ownerOf(_tokenId);
         require(IERC721(memberCardAddr).balanceOf(msg.sender) >= 1, "Use doesn't have enough NFTs to create proposal"); 
@@ -285,4 +286,5 @@ contract DAO is  KeeperCompatibleInterface  {
                 lastTimeStamp = block.timestamp;
             }        
     }
+
 }

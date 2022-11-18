@@ -60,7 +60,7 @@ contract SocialBankCore {
         string memory _initBaseURI,
         address _tokenAddress,
         address _aTokenAddress,
-        address _aaveLendingPoolAddressesProvider,
+        address _aaveLendingPoolAddressesProvider, //all of these can be hardcoded 
         address _swap,
         uint _maxSupply,
         uint _minStake
